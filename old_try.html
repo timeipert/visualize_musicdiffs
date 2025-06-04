@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8" />
+    <title>Generic N-Way Diff-Visualizer (Hunk-Zählung)</title>
+    <!-- Vue 3 über CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            margin-bottom: 5px;
+        }
+        input {
+            margin-bottom: 15px;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+        svg {
+            border: 1px solid #ccc;
+            background: #fafafa;
+        }
+        .details {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #888;
+            background: #f9f9f9;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+<h1>Generic N-Way Diff-Visualizer (Hunk-Zählung)</h1>
+<p>
+    Wähle alle paarweisen Diff-Dateien (<code>*.txt</code>) aus, die deine N Versionen abdecken.<br>
+    Die Anzahl der Dateien muss gleich <code>N*(N−1)/2</code> sein. Jede Datei muss in Zeile 1
+    <code>--- Pfad/VersionA.mei</code> und in Zeile 2 <code>+++ Pfad/VersionB.mei</code> stehen.<br>
+    Bei Hover siehst du Maß, Beat und alle einzelnen „-…“/„+…“-Zeilen.
+    Die Kreisgröße zeigt nun logarithmisch, **in wie vielen Dateien** an dieser Stelle mindestens ein Hunk lag.
+</p>
+<input type="file" multiple @change="onFilesChange" accept=".txt" />
+<div v-if="errorMsg" class="error">{{ errorMsg }}</div>
+
+<div v-if="combinedEvents.length">
+    <h2>Diff-Ereignisse für {{ versionNames.length }} Versionen</h2>
+    <svg :width="SVG_WIDTH" :height="svgHeight" xmlns="http://www.w3.org/2000/svg">
+        <!-- 1) Links: Version-Labels -->
+        <text
+                v-for="(name, i) in versionNames"
+                :key="'label-' + i"
+                x="10"
+                :y="lineYs[i] - 6"
+                font-size="12"
+                fill="#333"
+        >
+            {{ name }}
+        </text>
+
+        <!-- 2) Eine horizontale Linie pro Version -->
+        <line
+                v-for="(y, i) in lineYs"
+                :key="'hline-' + i"
+                :x1="MARGIN_LEFT"
+                :y1="y"
+                :x2="SVG_WIDTH"
+                :y2="y"
+                stroke="#555"
+                stroke-width="1"
+        />
+
+        <!-- 3) Für jedes Event: helle vertikale Linie -->
+        <line
+                v-for="(evt, idx) in combinedEvents"
+                :key="'vline-' + idx"
+                :x1="mapTimeToX(evt.time)"
+                :y1="lineYs[0]"
+                :x2="mapTimeToX(evt.time)"
+                :y2="lineYs[lineYs.length - 1]"
+                stroke="#aaa"
+                stroke-width="1"
+                opacity="0.15"
+        />
+
+        <!-- 4) Pro Version i und Event: farbiger Kreis mit @mouseenter/@mouseleave -->
+        <g v-for="(evt, eidx) in combinedEvents" :key="'group-' + eidx">
+            <circle
+                    v-for="(isMinor, i) in evt.isMinority"
+                    :key="'circle-' + eidx + '-' + i"
+                    :cx="mapTimeToX(evt.time)"
+                    :cy="lineYs[i]"
+                    :r="circleRadius(evt.counts[i])"
+                    :fill="isMinor ? '#d9534f' : '#5cb85c'"
+                    opacity="0.4"
+                    @mouseenter="showDetails(evt, i)"
+                    @mouseleave="clearDetails"
+            />
+        </g>
+    </svg>
+
+    <p style="margin-top:10px; font-size:0.9em; color:#555;">
+        <strong>Legende:</strong><br>
+        <span style="color:#d9534f;">● rot</span> = Version weicht von der Mehrheit ab
+        <span style="color:#5cb85c;">● grün</span> = Version gehört zur Mehrheit<br>
+        <strong>Kreisgröße:</strong> Logarithmisch skaliert nach <code>4 + 3·ln(Dates+1)</code>
+        (Dates = Anzahl der Dateien, in denen an dieser Stelle mindestens ein Hunk steht)
+    </p>
+
+    <!-- Hover-Details unterhalb -->
+    <div v-if="hovered" class="details">
+        <strong>Measure:</strong> {{ hovered.measure }}   <strong>Beat:</strong> {{ hovered.beat }}
+        <strong>Version:</strong> {{ hovered.version }}
+        ({{ hovered.isMinority ? "Minorität" : "Mehrheit" }})
+        <strong>Dateien:</strong> {{ hovered.count }}<br><br>
+        <strong>— Diff-Details —</strong><br>
+        <template v-for="(diffInfo, idx) in hovered.diffs">
+            <em>Datei {{ diffInfo.fileName }}:</em><br>
+            <span v-for="(line, li) in diffInfo.lines" :key="li">  {{ line }}<br></span>
+            <br>
+        </template>
+    </div>
+</div>
+
+<script>
+    const { createApp } = Vue;
+
+    createApp({
+        data() {
+            return {
+                diffObjsRaw: [],        // Roh-Daten jeder geladenen Diff-Txt
+                versionNames: [],       // Alle eindeutigen Version-Namen (N Versionen)
+                BEAT_SCALE: 0,
+                minTime: 0,
+                maxTime: 0,
+                combinedEvents: [],     // [ { time, measure, beatRaw, isMinority:[], counts:[], diffsByVersion:[] }, … ]
+                hovered: null,          // Speichert Details der aktuellen Hover-Position
+                SVG_WIDTH: 2000,        // Breite der Zeichenfläche
+                MARGIN_LEFT: 130,
+                errorMsg: ""
+            };
+        },
+        computed: {
+            // Höhe des SVG: 50 px pro Version + 50 px Puffer
+            svgHeight() {
+                return (this.versionNames.length + 1) * 50;
+            },
+            // Y-Positionen der horizontalen Linien (je Version)
+            lineYs() {
+                const n = this.versionNames.length;
+                const spacing = this.svgHeight / (n + 1);
+                const ys = [];
+                for (let i = 0; i < n; i++) {
+                    ys.push((i + 1) * spacing);
+                }
+                return ys;
+            },
+            // Effektive Breite für Zeit-Achse (ohne linkes Margin)
+            plotWidth() {
+                return this.SVG_WIDTH - this.MARGIN_LEFT - 10;
+            }
+        },
+        methods: {
+            onFilesChange(event) {
+                this.errorMsg = "";
+                this.diffObjsRaw = [];
+                this.versionNames = [];
+                this.combinedEvents = [];
+                this.hovered = null;
+
+                const files = event.target.files;
+                const m = files.length;
+                if (m === 0) {
+                    this.errorMsg = "Bitte mindestens eine .txt-Datei auswählen.";
+                    return;
+                }
+
+                // Prüfen: m == N*(N−1)/2
+                const disc = 1 + 8 * m;
+                const sqrtD = Math.sqrt(disc);
+                const possibleN = (1 + sqrtD) / 2;
+                if (!Number.isInteger(possibleN)) {
+                    this.errorMsg = `Anzahl Dateien (${m}) entspricht nicht N*(N−1)/2 für eine ganze N.`;
+                    return;
+                }
+
+                let loaded = 0;
+                for (let i = 0; i < m; i++) {
+                    const f = files[i];
+                    if (!f.name.toLowerCase().endsWith(".txt")) {
+                        this.errorMsg = "Alle Dateien müssen .txt sein.";
+                        return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const rawText = e.target.result;
+                        const parsed = this.parseRawDiff(rawText);
+                        this.diffObjsRaw.push({
+                            versionA: parsed.versionA,
+                            versionB: parsed.versionB,
+                            eventsNoTime: parsed.eventsNoTime,
+                            maxBeatDecimal: parsed.maxBeatDecimal,
+                            fileName: f.name
+                        });
+                        loaded++;
+                        if (loaded === m) {
+                            this.collectVersionNames();
+                            if (this.errorMsg) return;
+                            this.buildCombinedVisualization();
+                        }
+                    };
+                    reader.onerror = () => {
+                        this.errorMsg = `Fehler beim Einlesen von ${f.name}`;
+                    };
+                    reader.readAsText(f);
+                }
+            },
+
+            // Parst eine einzelne Diff-Txt
+            parseRawDiff(rawText) {
+                const lines = rawText.split(/\r?\n/);
+                let versionA = "unknownA", versionB = "unknownB";
+                const reLeft = /^---\s+(.+)$/;
+                const reRight = /^\+\+\+\s+(.+)$/;
+                if (lines[0] && reLeft.test(lines[0])) {
+                    versionA = lines[0].replace(reLeft, "$1").split("/").pop();
+                }
+                if (lines[1] && reRight.test(lines[1])) {
+                    versionB = lines[1].replace(reRight, "$1").split("/").pop();
+                }
+
+                const diffLineRegex = /@@\s*measure\s+(\d+),\s*staff\s+(\d+),\s*beat\s+([\d.]+(?:\s+\d+\/\d+)?)\s*@@/g;
+                const matches = [];
+                let match;
+                while ((match = diffLineRegex.exec(rawText)) !== null) {
+                    matches.push({
+                        index: match.index,
+                        measure: parseInt(match[1], 10),
+                        staff: parseInt(match[2], 10),
+                        beatRaw: match[3].trim()
+                    });
+                }
+
+                const eventsNoTime = [];
+                let maxBeatDecimal = 0;
+                for (let i = 0; i < matches.length; i++) {
+                    const mObj = matches[i];
+                    // Länge des Headers (z.B. "@@ measure 4, staff 1, beat 2.0 @@")
+                    const header = rawText.slice(mObj.index).match(diffLineRegex)[0];
+                    const startOfBlock = mObj.index + header.length;
+                    const endOfBlock = (i + 1 < matches.length)
+                        ? matches[i + 1].index
+                        : rawText.length;
+                    const block = rawText.slice(startOfBlock, endOfBlock);
+
+                    // Alle "-..." und "+..."-Zeilen sammeln
+                    const diffLines = block
+                        .split(/\r?\n/)
+                        .map(ln => ln.trim())
+                        .filter(ln => ln.startsWith("-") || ln.startsWith("+"));
+
+                    // Beat in Fließzahl umwandeln
+                    let bd = 0;
+                    const beatRaw = mObj.beatRaw;
+                    if (beatRaw.includes(" ")) {
+                        const parts = beatRaw.split(/\s+/);
+                        const intPart = parseInt(parts[0], 10);
+                        const fracMatch = parts[1].match(/(\d+)\/(\d+)/);
+                        if (fracMatch) {
+                            const numer = parseInt(fracMatch[1], 10);
+                            const denom = parseInt(fracMatch[2], 10);
+                            bd = intPart + numer / denom;
+                        } else {
+                            bd = parseFloat(beatRaw);
+                        }
+                    } else {
+                        bd = parseFloat(beatRaw);
+                    }
+                    if (bd > maxBeatDecimal) {
+                        maxBeatDecimal = bd;
+                    }
+
+                    eventsNoTime.push({
+                        measure: mObj.measure,
+                        staff: mObj.staff,
+                        beatRaw: beatRaw,
+                        beatDecimal: bd,
+                        diffs: diffLines
+                    });
+                }
+
+                return { versionA, versionB, eventsNoTime, maxBeatDecimal };
+            },
+
+            // Sammle eindeutige Version-Namen und prüfe m = N*(N−1)/2
+            collectVersionNames() {
+                const nameSet = new Set();
+                this.diffObjsRaw.forEach(d => {
+                    nameSet.add(d.versionA);
+                    nameSet.add(d.versionB);
+                });
+                this.versionNames = Array.from(nameSet);
+                const m = this.diffObjsRaw.length;
+                const N = this.versionNames.length;
+                if (N * (N - 1) / 2 !== m) {
+                    this.errorMsg = `Gefundene Version-Namen (${N}): ${this.versionNames.join(", ")}.
+Anzahl Dateien (${m}) entspricht nicht N*(N-1)/2 (hier ${N * (N - 1) / 2}).`;
+                }
+            },
+
+            // Baue combinedEvents für beliebig viele Versionen
+            buildCombinedVisualization() {
+                const N = this.versionNames.length;
+                const nameToIdx = {};
+                this.versionNames.forEach((nm, i) => {
+                    nameToIdx[nm] = i;
+                });
+
+                // Bestimme BEAT_SCALE = maxBeatDecimal + 1
+                const globalMaxBeat = Math.max(
+                    ...this.diffObjsRaw.map(d => d.maxBeatDecimal)
+                );
+                this.BEAT_SCALE = globalMaxBeat + 1;
+
+                // Erstelle diffSets
+                const diffSets = [];
+                const timeInfoMap = {};
+                this.diffObjsRaw.forEach(d => {
+                    const setThis = new Set();
+                    const timeToCount = {};
+                    const timeToDiffs = {};
+                    d.eventsNoTime.forEach(ev => {
+                        const t = ev.measure * this.BEAT_SCALE + ev.beatDecimal;
+                        setThis.add(t);
+                        // Zähle hier die Anzahl der einzelnen "-"/"+"-Zeilen
+                        timeToCount[t] = (timeToCount[t] || 0) + ev.diffs.length;
+                        timeToDiffs[t] = ev.diffs;
+                        if (!timeInfoMap[t]) {
+                            timeInfoMap[t] = {
+                                measure: ev.measure,
+                                beatRaw: ev.beatRaw
+                            };
+                        }
+                    });
+                    const pairIdx = [nameToIdx[d.versionA], nameToIdx[d.versionB]];
+                    diffSets.push({
+                        set: setThis,
+                        pairIdx,
+                        timeToCount,
+                        timeToDiffs,
+                        fileName: d.fileName
+                    });
+                });
+
+                // Vereinigung aller Zeitpunkte
+                const allTimesSet = new Set();
+                diffSets.forEach(ds => {
+                    ds.set.forEach(t => allTimesSet.add(t));
+                });
+                const allTimes = Array.from(allTimesSet).sort((a, b) => a - b);
+
+                // Baue combinedEvents
+                this.combinedEvents = allTimes.map(t => {
+                    // a) Finde alle Paare, in denen t vorkommt
+                    const pairsHere = [];
+                    diffSets.forEach(ds => {
+                        if (ds.set.has(t)) {
+                            pairsHere.push(ds.pairIdx);
+                        }
+                    });
+
+                    // b) diffGraph[N][N]
+                    const diffGraph = Array.from({ length: N }, () =>
+                        Array(N).fill(false)
+                    );
+                    pairsHere.forEach(pair => {
+                        const [i, j] = pair;
+                        diffGraph[i][j] = true;
+                        diffGraph[j][i] = true;
+                    });
+
+                    // c) equalGraph: i≠j && !diffGraph[i][j]
+                    const equalGraph = Array.from({ length: N }, () =>
+                        Array(N).fill(false)
+                    );
+                    for (let i = 0; i < N; i++) {
+                        for (let j = 0; j < N; j++) {
+                            if (i !== j && !diffGraph[i][j]) {
+                                equalGraph[i][j] = true;
+                            }
+                        }
+                    }
+
+                    // d) Finde zusammenhängende Komponenten
+                    const visited = Array(N).fill(false);
+                    const components = [];
+                    for (let i = 0; i < N; i++) {
+                        if (!visited[i]) {
+                            const stack = [i];
+                            visited[i] = true;
+                            const comp = [i];
+                            while (stack.length) {
+                                const u = stack.pop();
+                                for (let v = 0; v < N; v++) {
+                                    if (!visited[v] && equalGraph[u][v]) {
+                                        visited[v] = true;
+                                        stack.push(v);
+                                        comp.push(v);
+                                    }
+                                }
+                            }
+                            components.push(comp);
+                        }
+                    }
+
+                    // e) Größte Komponente(n)
+                    let largestSize = 0;
+                    components.forEach(c => {
+                        if (c.length > largestSize) {
+                            largestSize = c.length;
+                        }
+                    });
+                    const isMinority = Array(N).fill(false);
+                    components.forEach(c => {
+                        if (c.length < largestSize) {
+                            c.forEach(i => (isMinority[i] = true));
+                        }
+                    });
+
+                    // f) counts[i] = Summe aller einzelnen "-"/"+/-Zeilen" für Version i an t
+                    // Wenn ds.set.has(t), dann nehmen wir ds.timeToCount[t] (Anzahl Zeilen) als eine Hunk-Anzahl.
+                    const counts = Array(N).fill(0);
+                    diffSets.forEach(ds => {
+                        const [i, j] = ds.pairIdx;
+                        if (ds.set.has(t)) {
+                            // ds.timeToCount[t] ist die Anzahl der "-"/"+/-Zeilen" in dieser Datei an t
+                            const numLines = ds.timeToCount[t] || 0;
+                            // Füge diese numLines sowohl für i als auch für j hinzu:
+                            counts[i] += numLines;
+                            counts[j] += numLines;
+                        }
+                    });
+
+                    // g) diffsByVersion[i] = Liste von { fileName, lines }
+                    const diffsByVersion = Array(N).fill(null).map(() => []);
+                    diffSets.forEach(ds => {
+                        const [i, j] = ds.pairIdx;
+                        if (ds.set.has(t)) {
+                            diffsByVersion[i].push({
+                                fileName: ds.fileName,
+                                lines: ds.timeToDiffs[t]
+                            });
+                            diffsByVersion[j].push({
+                                fileName: ds.fileName,
+                                lines: ds.timeToDiffs[t]
+                            });
+                        }
+                    });
+
+                    // h) measure + beatRaw aus timeInfoMap
+                    const info = timeInfoMap[t] || { measure: "?", beatRaw: "?" };
+
+                    return {
+                        time: t,
+                        measure: info.measure,
+                        beatRaw: info.beatRaw,
+                        isMinority,
+                        counts,
+                        diffsByVersion
+                    };
+                });
+
+                // minTime & maxTime setzen
+                this.minTime = allTimes[0];
+                this.maxTime = allTimes[allTimes.length - 1];
+                if (this.minTime === this.maxTime) {
+                    this.maxTime = this.minTime + 1;
+                }
+            },
+
+            // Mapping time → X-Pixel
+            mapTimeToX(time) {
+                const tNorm = (time - this.minTime) / (this.maxTime - this.minTime);
+                return this.MARGIN_LEFT + tNorm * this.plotWidth;
+            },
+
+            // Berechne Kreisradius logarithmisch: r = 4 + 3·ln(Änderungen+1)
+            circleRadius(count) {
+                return 4 + 3 * Math.log(count + 1);
+            },
+
+            // Bei Hover Details anzeigen
+            showDetails(evt, versionIndex) {
+                this.hovered = {
+                    measure: evt.measure,
+                    beat: evt.beatRaw,
+                    version: this.versionNames[versionIndex],
+                    isMinority: evt.isMinority[versionIndex],
+                    count: evt.counts[versionIndex],       // Anzahl der einzelnen "-"/"+/-Zeilen
+                    diffs: evt.diffsByVersion[versionIndex]
+                };
+            },
+
+            // Hover entfernen
+            clearDetails() {
+                this.hovered = null;
+            }
+        }
+    }).mount("body");
+</script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body { font-family: sans-serif; }
+        #network, #axis { border: 1px solid #ccc; margin: 10px 0; }
+        #beatLabel { margin-left: 10px; }
+        .tooltip {
+            position: absolute;
+            pointer-events: none;
+            background: rgba(255,255,255,0.9);
+            border: 1px solid #999;
+            padding: 6px;
+            font-size: 12px;
+            border-radius: 4px;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+            max-width: 300px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+
+<input type="file" id="diffFiles" multiple accept=".txt" />
+<button id="loadBtn">Load</button>
+<br /><br />
+<svg id="network" width="800" height="400"></svg>
+<svg id="axis" width="800" height="100"></svg>
+<br />
+<input type="range" id="beatSlider" min="0" max="1" step="0.01" disabled style="visibility: hidden"/>
+<span id="beatLabel">Measure: 1, Beat: 1</span>
+
+<div id="tooltip" class="tooltip" style="display: none;"></div>
+
+<script src="script.js">
+</script>
+</body>
+</html>
