@@ -31,7 +31,7 @@
 <button id="loadBtn">Load</button>
 <br /><br />
 <svg id="network" width="1200" height="400"></svg>
-<svg id="axis" width="1200" height="200"></svg>
+<svg id="axis" width="1200" height="1000"></svg>
 <br />
 <input type="range" id="beatSlider" min="0" max="1" step="0.01" disabled />
 <span id="beatLabel">Measure: 1, Beat: 1</span>
@@ -40,47 +40,54 @@
 
 <script>
     const fileInput = document.getElementById("diffFiles"),
-        loadBtn = document.getElementById("loadBtn"),
+        loadBtn    = document.getElementById("loadBtn"),
         beatSlider = document.getElementById("beatSlider"),
-        beatLabel = document.getElementById("beatLabel"),
-        netSvg = d3.select("#network"),
-        axSvg = d3.select("#axis"),
-        tooltip = d3.select("#tooltip"),
-        width = +netSvg.attr("width"),
-        height = +netSvg.attr("height"),
-        axHeight = +axSvg.attr("height"),
-        netG = netSvg.append("g"),
-        linkG = netG.append("g"),
-        nodeG = netG.append("g"),
-        diffByBeat = {},
-        beatInfo = {},          // Maps numeric key → {measure, beat}
-        edges = [],
-        nodesMap = {};
+        beatLabel  = document.getElementById("beatLabel"),
+        netSvg     = d3.select("#network"),
+        axSvg      = d3.select("#axis"),
+        tooltip    = d3.select("#tooltip"),
+        width      = +netSvg.attr("width"),
+        height     = +netSvg.attr("height"),
+        axHeight   = +axSvg.attr("height"),
+        netG       = netSvg.append("g"),
+        linkG      = netG.append("g"),
+        nodeG      = netG.append("g"),
+        diffByBeat = {},          // still used for total diffs (hover popup)
+        beatInfo   = {},          // Maps numeric key → {measure, beat}
+        edges      = [],
+        nodesMap   = {};
 
     function parseDiff(text, filename) {
-        const parts = filename.replace(/_diff\.txt$/, "").split("__"),
-            a = parts[0], b = parts[1];
+        const lines = text.split("\n");
+        // First two lines indicate file‐paths; extract just the file IDs
+        const a = lines[0].replace(/--- (\/.*)\//, ""),
+            b = lines[1].replace(/\+\+\+ (\/.*)\//, "");
         if (!nodesMap[a]) nodesMap[a] = { id: a };
         if (!nodesMap[b]) nodesMap[b] = { id: b };
+
         const edge = { source: a, target: b, beatCounts: {}, beatDetails: {} };
         let curKey = null;
-        text.split("\n").forEach(line => {
+
+        lines.forEach(line => {
             if (line.startsWith("@@")) {
+                // Look for “measure X, beat Y” in the diff hunk header
                 const m = /measure\s+(\d+),.*beat\s+([\d.]+)/.exec(line);
                 if (m) {
                     const M = parseInt(m[1], 10),
                         B = parseFloat(m[2]);
-                    // Zero-indexed numeric key for scale: (M - 1) + (B - 1)
+                    // Zero‐indexed numeric key: (M−1)+(B−1)
                     curKey = (M - 1) + (B - 1);
                     if (!beatInfo[curKey]) beatInfo[curKey] = { measure: M, beat: B };
                 }
             } else if (curKey !== null && (line.startsWith("+") || line.startsWith("-"))) {
+                // Count this diff line under the current beat
                 edge.beatCounts[curKey] = (edge.beatCounts[curKey] || 0) + 1;
                 diffByBeat[curKey] = (diffByBeat[curKey] || 0) + 1;
                 if (!edge.beatDetails[curKey]) edge.beatDetails[curKey] = [];
                 edge.beatDetails[curKey].push(line);
             }
         });
+
         edges.push(edge);
     }
 
@@ -99,15 +106,15 @@
     };
 
     function initVis() {
-        const nodes = Object.values(nodesMap),
+        // NODE + LINK setup (unchanged from original)
+        const nodes   = Object.values(nodesMap),
             linkData = edges.map(e => Object.assign({}, e));
 
-        // Assign each edge a unique ID and a color
         linkData.forEach(d => d.id = `${d.source}__${d.target}`);
         const color = d3.scaleOrdinal(d3.schemeCategory10)
             .domain(linkData.map(d => d.id));
 
-        // Create legend in top-right of network SVG
+        // Create a legend in the top‐right of the network SVG
         const legend = netSvg.append("g")
             .attr("class", "legend")
             .attr("transform", `translate(${width - 320}, 20)`);
@@ -133,92 +140,77 @@
                     .text(`${d.source} ↔ ${d.target}`);
             });
 
-        // All numeric beat keys:
-        const beats = Object.keys(diffByBeat).map(Number).sort((a, b) => a - b),
+        // --- NEW: “Multiple Axes” per edge rather than one stacked bar ●
+        // 1) Gather all beat‐keys and sort
+        const beats  = Object.keys(diffByBeat).map(Number).sort((a,b) => a - b),
             minKey = beats[0] || 0,
             maxKey = beats[beats.length - 1] || 1;
 
+        // 2) Define horizontal (X) scale once. Leave 40px left margin for Y axes.
+        const marginLeft = 40;
         const xScale = d3.scaleLinear()
-                .domain([minKey, maxKey])
-                .range([40, width - 40]),
-            maxDiff = d3.max(Object.values(diffByBeat)),
-            barH = d3.scaleLinear()
-                .domain([0, maxDiff || 1])
-                .range([0, axHeight - 10]);
+            .domain([minKey, maxKey])
+            .range([marginLeft, width - 40]);
 
-        // Draw horizontal axis line
-        axSvg.append("line")
-            .attr("x1", xScale(minKey))
-            .attr("y1", axHeight)
-            .attr("x2", xScale(maxKey))
-            .attr("y2", axHeight)
-            .attr("stroke", "#000");
+        // 3) Each “panel” (one per edge) will occupy axHeight / (#edges) vertical space
+        const nEdges      = linkData.length,
+            panelHeight  = axHeight / nEdges,
+            barWidth     = 4;
 
-        // Width of each stacked bar
-        const barWidth = 4;
+        // 4) For each edge d, create a separate group at vertical offset
+        linkData.forEach((d, i) => {
+            const panelGroup = axSvg.append("g")
+                .attr("transform", `translate(0, ${i * panelHeight})`);
 
-        // Create a group for each beat to hold its stacked bar
-        const beatGroups = axSvg.selectAll("g.beatGroup")
-            .data(beats)
-            .enter()
-            .append("g")
-            .attr("class", "beatGroup")
-            .attr("transform", d => `translate(${xScale(d)},0)`);
+            // Find this edge’s maximum diff‐count across all beats
+            const countsArray = Object.values(d.beatCounts),
+                maxCount    = d3.max(countsArray.length ? countsArray : [0]);
 
-        // For each beat, draw a transparent rect for hover area, then stack colored rects
-        beatGroups.each(function(key) {
-            const group = d3.select(this),
-                totalHeight = barH(diffByBeat[key]);
+            // Y‐scale for this edge’s panel: 0 → (panelHeight) maps to bottom
+            const yScale = d3.scaleLinear()
+                .domain([0, maxCount || 1])
+                .range([panelHeight, 0]);
 
-            // Invisible background for hover
-            group.append("rect")
-                .attr("x", -barWidth / 2)
-                .attr("y", axHeight - totalHeight)
-                .attr("width", barWidth)
-                .attr("height", totalHeight)
-                .attr("fill", "none")
-                .attr("pointer-events", "all")
-                .on("mouseover", (event) => {
-                    const info = beatInfo[key],
-                        total = diffByBeat[key];
-                    let content = `Measure ${info.measure}, Beat ${info.beat.toFixed(2)}: total diffs = ${total}\n`;
-                    linkData.forEach(e => {
-                        const c = e.beatCounts[key] || 0;
-                        if (c > 0) {
-                            content += `${e.source.id} ↔ ${e.target.id}: ${c}\n`;
-                        }
-                    });
-                    tooltip.html(content)
-                        .style("left", (event.pageX + 10) + "px")
-                        .style("top", (event.pageY + 10) + "px")
-                        .style("display", "block");
-                })
-                .on("mousemove", (event) => {
-                    tooltip.style("left", (event.pageX + 10) + "px")
-                        .style("top", (event.pageY + 10) + "px");
-                })
-                .on("mouseout", () => {
-                    tooltip.style("display", "none");
-                });
+            // (a) Draw horizontal baseline at bottom of this panel
+            panelGroup.append("line")
+                .attr("x1", xScale(minKey))
+                .attr("y1", panelHeight)
+                .attr("x2", xScale(maxKey))
+                .attr("y2", panelHeight)
+                .attr("stroke", "#000");
 
-            // Stack each edge’s rect for this beat
-            let cum = 0;
-            linkData.forEach(e => {
-                const c = e.beatCounts[key] || 0;
-                if (c > 0) {
-                    const h = barH(c);
-                    group.append("rect")
-                        .attr("x", -barWidth / 2)
-                        .attr("y", axHeight - cum - h)
-                        .attr("width", barWidth)
-                        .attr("height", h)
-                        .attr("fill", color(e.id));
-                    cum += h;
-                }
+            // (b) Draw each beat’s small vertical bar within this panel
+            beats.forEach(key => {
+                const c = d.beatCounts[key] || 0;
+                const x = xScale(key) - barWidth / 2;
+                const y = yScale(c);
+                const h = panelHeight - y;
+
+                panelGroup.append("rect")
+                    .attr("x", x)
+                    .attr("y", y)
+                    .attr("width", barWidth)
+                    .attr("height", h)
+                    .attr("fill", color(d.id));
             });
+
+            // (c) Draw a left‐axis for this panel
+            const yAxis = d3.axisLeft(yScale).ticks(3);
+            panelGroup.append("g")
+                .attr("transform", `translate(${marginLeft}, 0)`)
+                .call(yAxis);
+
+            // (d) Add a text label (“source ↔ target”) at mid‐height to the left
+           /* panelGroup.append("text")
+                .attr("x", marginLeft - 5)
+                .attr("y", panelHeight / 2)
+                .attr("text-anchor", "end")
+                .attr("alignment-baseline", "middle")
+                .attr("font-size", "12px")
+                .text(`${d.source} ↔ ${d.target}`);*/
         });
 
-        // Current-beat indicator
+        // 5) A single vertical “current‐beat” indicator spanning all panels
         const indicator = axSvg.append("line")
             .attr("x1", xScale(minKey))
             .attr("x2", xScale(minKey))
@@ -228,44 +220,43 @@
             .attr("opacity", "0.5")
             .attr("stroke-width", 2);
 
-        // Axis hover: set current beat on mousemove (snapped)
+        // 6) Mousemove on the axis SVG: update the current‐beat line (snapping to nearest available beat)
         axSvg.on("mousemove", (event) => {
             const [mx] = d3.pointer(event);
             let val = xScale.invert(mx);
-            const nearest = beats.reduce((a, c) => Math.abs(c - val) < Math.abs(a - val) ? c : a, beats[0]);
+            const nearest = beats.reduce((a,c) => (Math.abs(c - val) < Math.abs(a - val) ? c : a), beats[0]);
             setCurrentBeat(nearest);
         });
 
-        // Force simulation
+        // --- NETWORK FORCE‐DIRECTED LAYOUT (unchanged) ●
         const simulation = d3.forceSimulation(nodes)
             .force("link", d3.forceLink(linkData).id(d => d.id).distance(150))
             .force("charge", d3.forceManyBody().strength(-200))
             .force("center", d3.forceCenter(width / 2, height / 2));
 
-        // Draw edges with a larger invisible stroke for easier hover
         const linkGroups = linkG.selectAll("g.linkGroup")
             .data(linkData)
             .enter()
             .append("g")
             .attr("class", "linkGroup");
 
-        // Invisible wide lines for hover area
+        // Invisible wide lines for easier hover
         linkGroups.append("line")
             .attr("class", "hitarea")
             .attr("stroke", "transparent")
             .attr("stroke-width", 10);
 
-        // Visible lines on top
+        // Visible colored lines on top
         linkGroups.append("line")
             .attr("class", "linkLine")
             .attr("stroke", d => color(d.id))
             .attr("stroke-width", 1);
 
-        // Hover events on hitarea
+        // Hover events on hitarea: show diffs for that edge at current beat
         linkGroups.on("mouseover", (event, d) => {
             const curr = +beatSlider.value;
-            const nearest = beats.reduce((a, c) => Math.abs(c - curr) < Math.abs(a - curr) ? c : a, beats[0]);
-            const info = beatInfo[nearest];
+            const nearest = beats.reduce((a,c) => (Math.abs(c - curr) < Math.abs(a - curr) ? c : a), beats[0]);
+            const info  = beatInfo[nearest];
             const diffs = d.beatDetails[nearest] || [];
             let content = `Edge ${d.source} ↔ ${d.target}\n`;
             content += `Measure ${info.measure}, Beat ${info.beat.toFixed(2)} diffs:\n`;
@@ -318,15 +309,17 @@
                 .attr("y2", d => d.target.y)
                 .attr("stroke-width", d => {
                     const curr = +beatSlider.value;
-                    const nearest = beats.reduce((a, c) => Math.abs(c - curr) < Math.abs(a - curr) ? c : a, beats[0]);
+                    const nearest = beats.reduce((a,c) => (Math.abs(c - curr) < Math.abs(a - curr) ? c : a), beats[0]);
                     return d.beatCounts[nearest] || 0;
                 });
 
-            node.attr("cx", d => d.x).attr("cy", d => d.y);
-            label.attr("x", d => d.x).attr("y", d => d.y);
+            node.attr("cx", d => d.x)
+                .attr("cy", d => d.y);
+            label.attr("x", d => d.x)
+                .attr("y", d => d.y);
         });
 
-        // Slider setup
+        // Slider setup (unchanged)
         beatSlider.min = minKey;
         beatSlider.max = maxKey;
         beatSlider.step = 0.01;
@@ -334,18 +327,20 @@
         beatSlider.disabled = false;
         beatSlider.oninput = () => {
             const v = +beatSlider.value;
-            const nearest = beats.reduce((a, c) => Math.abs(c - v) < Math.abs(a - v) ? c : a, beats[0]);
+            const nearest = beats.reduce((a,c) => (Math.abs(c - v) < Math.abs(a - v) ? c : a), beats[0]);
             setCurrentBeat(nearest);
         };
 
-        // Initial display
+        // Initial display: set the first beat
         setCurrentBeat(minKey);
 
         function setCurrentBeat(key) {
             beatSlider.value = key;
             const info = beatInfo[key];
             beatLabel.textContent = `Measure: ${info.measure}, Beat: ${info.beat.toFixed(2)}`;
-            indicator.attr("x1", xScale(key)).attr("x2", xScale(key));
+            indicator
+                .attr("x1", xScale(key))
+                .attr("x2", xScale(key));
             simulation.alpha(0.1).restart();
         }
 
