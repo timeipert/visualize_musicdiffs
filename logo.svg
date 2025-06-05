@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+        xmlns="http://www.w3.org/2000/svg"
+        version="1.1"
+        viewBox="480 80 240 240"
+        preserveAspectRatio="xMidYMid meet"
+>
+    <g>
+        <g>
+            <!-- Link groups (lines with transparent “hitareas” underneath) -->
+            <g class="linkGroup">
+                <line class="hitarea" stroke="transparent" stroke-width="10"
+                      x1="623.4205190564913" y1="205.75565323658694"
+                      x2="533.998965328554"   y2="285.8995124514031" />
+                <line class="linkLine"  stroke="#1f77b4"   stroke-width="4"
+                      x1="623.4205190564913" y1="205.75565323658694"
+                      x2="533.998965328554"   y2="285.8995124514031" />
+            </g>
+
+            <g class="linkGroup">
+                <line class="hitarea" stroke="transparent" stroke-width="10"
+                      x1="623.4205190564913" y1="205.75565323658694"
+                      x2="580.591317036849"  y2="93.5142866176581" />
+                <line class="linkLine"  stroke="#ff7f0e"   stroke-width="4"
+                      x1="623.4205190564913" y1="205.75565323658694"
+                      x2="580.591317036849"  y2="93.5142866176581" />
+            </g>
+
+            <g class="linkGroup">
+                <line class="hitarea" stroke="transparent" stroke-width="10"
+                      x1="533.998965328554"  y1="285.8995124514031"
+                      x2="665.3661957207547" y2="293.65219752355586" />
+                <line class="linkLine"  stroke="#2ca02c"   stroke-width="0"
+                      x1="533.998965328554"  y1="285.8995124514031"
+                      x2="665.3661957207547" y2="293.65219752355586" />
+            </g>
+
+            <g class="linkGroup">
+                <line class="hitarea" stroke="transparent" stroke-width="10"
+                      x1="533.998965328554"  y1="285.8995124514031"
+                      x2="496.000030681734"  y2="175.873266120904" />
+                <line class="linkLine"  stroke="#d62728"   stroke-width="6"
+                      x1="533.998965328554"  y1="285.8995124514031"
+                      x2="496.000030681734"  y2="175.873266120904" />
+            </g>
+
+            <g class="linkGroup">
+                <line class="hitarea" stroke="transparent" stroke-width="10"
+                      x1="533.998965328554"  y1="285.8995124514031"
+                      x2="700.6229906860085" y2="145.30474331161116" />
+                <line class="linkLine"  stroke="#9467bd"   stroke-width="6"
+                      x1="533.998965328554"  y1="285.8995124514031"
+                      x2="700.6229906860085" y2="145.30474331161116" />
+            </g>
+
+            <g class="linkGroup">
+                <line class="hitarea" stroke="transparent" stroke-width="10"
+                      x1="665.3661957207547" y1="293.65219752355586"
+                      x2="496.000030681734"  y2="175.873266120904" />
+                <line class="linkLine"  stroke="#8c564b"   stroke-width="6"
+                      x1="665.3661957207547" y1="293.65219752355586"
+                      x2="496.000030681734"  y2="175.873266120904" />
+            </g>
+
+            <g class="linkGroup">
+                <line class="hitarea" stroke="transparent" stroke-width="10"
+                      x1="665.3661957207547" y1="293.65219752355586"
+                      x2="700.6229906860085" y2="145.30474331161116" />
+                <line class="linkLine"  stroke="#e377c2"   stroke-width="6"
+                      x1="665.3661957207547" y1="293.65219752355586"
+                      x2="700.6229906860085" y2="145.30474331161116" />
+            </g>
+
+            <g class="linkGroup">
+                <line class="hitarea" stroke="transparent" stroke-width="10"
+                      x1="623.4205190564913" y1="205.75565323658694"
+                      x2="665.3661957207547" y2="293.65219752355586" />
+                <line class="linkLine"  stroke="#7f7f7f"   stroke-width="4"
+                      x1="623.4205190564913" y1="205.75565323658694"
+                      x2="665.3661957207547" y2="293.65219752355586" />
+            </g>
+
+            <g class="linkGroup">
+                <line class="hitarea" stroke="transparent" stroke-width="10"
+                      x1="533.998965328554"  y1="285.8995124514031"
+                      x2="580.591317036849"  y2="93.5142866176581" />
+                <line class="linkLine"  stroke="#bcbd22"   stroke-width="6"
+                      x1="533.998965328554"  y1="285.8995124514031"
+                      x2="580.591317036849"  y2="93.5142866176581" />
+            </g>
+
+            <g class="linkGroup">
+                <line class="hitarea" stroke="transparent" stroke-width="10"
+                      x1="580.591317036849"  y1="93.5142866176581"
+                      x2="700.6229906860085" y2="145.30474331161116" />
+                <line class="linkLine"  stroke="#17becf"   stroke-width="2"
+                      x1="580.591317036849"  y1="93.5142866176581"
+                      x2="700.6229906860085" y2="145.30474331161116" />
+            </g>
+
+            <g class="linkGroup">
+                <line class="hitarea" stroke="transparent" stroke-width="10"
+                      x1="496.000030681734"  y1="175.873266120904"
+                      x2="700.6229906860085" y2="145.30474331161116" />
+                <line class="linkLine"  stroke="#1f77b4"   stroke-width="4"
+                      x1="496.000030681734"  y1="175.873266120904"
+                      x2="700.6229906860085" y2="145.30474331161116" />
+            </g>
+
+            <g class="linkGroup">
+                <line class="hitarea" stroke="transparent" stroke-width="10"
+                      x1="580.591317036849"  y1="93.5142866176581"
+                      x2="496.000030681734"  y2="175.873266120904" />
+                <line class="linkLine"  stroke="#ff7f0e"   stroke-width="6"
+                      x1="580.591317036849"  y1="93.5142866176581"
+                      x2="496.000030681734"  y2="175.873266120904" />
+            </g>
+
+            <g class="linkGroup">
+                <line class="hitarea" stroke="transparent" stroke-width="10"
+                      x1="623.4205190564913" y1="205.75565323658694"
+                      x2="700.6229906860085" y2="145.30474331161116" />
+                <line class="linkLine"  stroke="#2ca02c"   stroke-width="2"
+                      x1="623.4205190564913" y1="205.75565323658694"
+                      x2="700.6229906860085" y2="145.30474331161116" />
+            </g>
+
+            <g class="linkGroup">
+                <line class="hitarea" stroke="transparent" stroke-width="10"
+                      x1="623.4205190564913" y1="205.75565323658694"
+                      x2="496.000030681734" y2="175.873266120904" />
+                <line class="linkLine"  stroke="#d62728"   stroke-width="2"
+                      x1="623.4205190564913" y1="205.75565323658694"
+                      x2="496.000030681734" y2="175.873266120904" />
+            </g>
+
+            <g class="linkGroup">
+                <line class="hitarea" stroke="transparent" stroke-width="10"
+                      x1="580.591317036849"  y1="93.5142866176581"
+                      x2="665.3661957207547" y2="293.65219752355586" />
+                <line class="linkLine"  stroke="#9467bd"   stroke-width="6"
+                      x1="580.591317036849"  y1="93.5142866176581"
+                      x2="665.3661957207547" y2="293.65219752355586" />
+            </g>
+        </g>
+
+        <g>
+            <!-- Circles at each node -->
+            <circle r="8" fill="orange" cx="623.4205190564913" cy="205.75565323658694" />
+            <circle r="8" fill="orange" cx="533.998965328554"   cy="285.8995124514031" />
+            <circle r="8" fill="orange" cx="580.591317036849"   cy="93.5142866176581" />
+            <circle r="8" fill="orange" cx="665.3661957207547" cy="293.65219752355586" />
+            <circle r="8" fill="orange" cx="496.000030681734"  cy="175.873266120904" />
+            <circle r="8" fill="orange" cx="700.6229906860085" cy="145.30474331161116" />
+        </g>
+    </g>
+</svg>
