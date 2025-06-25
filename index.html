@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8"/>
+    <meta charset="UTF-8" />
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
         body {
@@ -32,7 +33,8 @@
             background: #efefef;
         }
 
-        #network, #axis {
+        #network,
+        #axis {
             border: 1px solid #ccc;
             margin: 10px 0;
         }
@@ -71,518 +73,674 @@
         }
     </style>
 </head>
+
 <body>
-<div class="header">
-    <img src="logo.svg" width="50"/>
-    <h1>Multiple MusicDiff Visualiser</h1></div>
-<div class="load">Select multiple musicdiff-files: <input type="file" id="diffFiles" multiple accept=".txt"/>
-    <button id="loadBtn">Load</button>
-</div>
+    <div class="header">
+        <img src="logo.svg" width="50" />
+        <h1>Multiple MusicDiff Visualiser</h1>
+    </div>
+    <div class="load">Select multiple musicdiff-files: <input type="file" id="diffFiles" multiple accept=".txt" />
+        <button id="loadBtn">Load</button>
+    </div>
 
-<svg id="network" width="1200" height="400"></svg>
-<span id="beatLabel">Measure: –, Beat: –</span>
-<svg id="axis" width="1200" height="1000"></svg>
-<p><small>Click on the axis to enable selection</small></p>
-<br/>
-<input type="range" id="beatSlider" min="0" max="1" step="1" disabled style="visibility: hidden;"/>
+    <svg id="network" width="1200" height="400"></svg>
+    <span id="beatLabel">Measure: –, Beat: –</span>
+    <svg id="axis" width="1200" height="1000"></svg>
+    <p><small>Click on the axis to enable selection</small></p>
+    <br />
+    <input type="range" id="beatSlider" min="0" max="1" step="1" disabled style="visibility: hidden;" />
 
 
-<div id="tooltip" class="tooltip" style="display: none;"></div>
-<script>
-    const fileInput   = document.getElementById("diffFiles"),
-        loadBtn     = document.getElementById("loadBtn"),
-        beatSlider  = document.getElementById("beatSlider"),
-        beatLabel   = document.getElementById("beatLabel"),
-        netSvg      = d3.select("#network"),
-        axSvg       = d3.select("#axis"),
-        tooltip     = d3.select("#tooltip"),
-        width       = +netSvg.attr("width"),
-        height      = +netSvg.attr("height"),
-        axHeight    = +axSvg.attr("height"),
-        netG        = netSvg.append("g"),
-        linkG       = netG.append("g"),
-        nodeG       = netG.append("g"),
+    <div id="tooltip" class="tooltip" style="display: none;"></div>
+    <canvas id="traceCanvas" width="1000" height="800" style="border:1px solid #ccc;"></canvas>
+   
 
-        // During parsing, we store only those beats that actually appear:
-        diffByBeat  = {},      // keyed by "M-B"
-        beatInfo    = {},      // maps "M-B" → { measure: M, beat: B }
-        edges       = [],
-        nodesMap    = {};
+    <script>
+        const fileInput = document.getElementById("diffFiles"),
+            loadBtn = document.getElementById("loadBtn"),
+            beatSlider = document.getElementById("beatSlider"),
+            beatLabel = document.getElementById("beatLabel"),
+            netSvg = d3.select("#network"),
+            axSvg = d3.select("#axis"),
+            tooltip = d3.select("#tooltip"),
+            width = +netSvg.attr("width"),
+            height = +netSvg.attr("height"),
+            axHeight = +axSvg.attr("height"),
+            netG = netSvg.append("g"),
+            linkG = netG.append("g"),
+            nodeG = netG.append("g"),
 
-    function parseDiff(text, filename) {
-        const lines = text.split("\n");
-        // First two lines: extract only the file ID from each path
-        const a = lines[0].replace(/--- (\/.*)\//, ""),
-            b = lines[1].replace(/\+\+\+ (\/.*)\//, "");
-        if (!nodesMap[a]) nodesMap[a] = { id: a };
-        if (!nodesMap[b]) nodesMap[b] = { id: b };
+            // During parsing, we store only those beats that actually appear:
+            diffByBeat = {},      // keyed by "M-B"
+            beatInfo = {},      // maps "M-B" → { measure: M, beat: B }
+            edges = [],
+            nodesMap = {};
 
-        const edge = { source: a, target: b, beatCounts: {}, beatDetails: {} };
-        let curKeyStr = null;
+        function parseDiff(text, filename) {
+            const lines = text.split("\n");
+            // First two lines: extract only the file ID from each path
+            const a = lines[0].replace(/--- (\/.*)\//, ""),
+                b = lines[1].replace(/\+\+\+ (\/.*)\//, "");
+            if (!nodesMap[a]) nodesMap[a] = { id: a };
+            if (!nodesMap[b]) nodesMap[b] = { id: b };
 
-        lines.forEach(line => {
-            if (line.startsWith("@@")) {
-                // Extract “measure X, beat Y” from the diff‐hunk header
-                const m = /measure\s+(\d+),.*beat\s+([\d.]+)/.exec(line);
-                if (m) {
-                    const M = parseInt(m[1], 10),
-                        B = parseFloat(m[2]),
-                        keyStr = `${M}-${B}`;
-                    curKeyStr = keyStr;
-                    if (!beatInfo[keyStr]) {
-                        beatInfo[keyStr] = { measure: M, beat: B };
-                        diffByBeat[keyStr] = 0;
+            const edge = { source: a, target: b, beatCounts: {}, beatDetails: {} };
+            let curKeyStr = null;
+
+            lines.forEach(line => {
+                if (line.startsWith("@@")) {
+                    // Extract “measure X, beat Y” from the diff‐hunk header
+                    const m = /measure\s+(\d+),.*beat\s+([\d.]+)/.exec(line);
+                    if (m) {
+                        const M = parseInt(m[1], 10),
+                            B = parseFloat(m[2]),
+                            keyStr = `${M}-${B}`;
+                        curKeyStr = keyStr;
+                        if (!beatInfo[keyStr]) {
+                            beatInfo[keyStr] = { measure: M, beat: B };
+                            diffByBeat[keyStr] = 0;
+                        }
                     }
+                } else if (
+                    curKeyStr !== null &&
+                    (line.startsWith("+") || line.startsWith("-"))
+                ) {
+                    // Count this diff‐line under the current (M-B) key
+                    edge.beatCounts[curKeyStr] = (edge.beatCounts[curKeyStr] || 0) + 1;
+                    diffByBeat[curKeyStr] = (diffByBeat[curKeyStr] || 0) + 1;
+                    if (!edge.beatDetails[curKeyStr]) edge.beatDetails[curKeyStr] = [];
+                    edge.beatDetails[curKeyStr].push(line);
                 }
-            } else if (
-                curKeyStr !== null &&
-                (line.startsWith("+") || line.startsWith("-"))
-            ) {
-                // Count this diff‐line under the current (M-B) key
-                edge.beatCounts[curKeyStr] = (edge.beatCounts[curKeyStr] || 0) + 1;
-                diffByBeat[curKeyStr] = (diffByBeat[curKeyStr] || 0) + 1;
-                if (!edge.beatDetails[curKeyStr]) edge.beatDetails[curKeyStr] = [];
-                edge.beatDetails[curKeyStr].push(line);
-            }
-        });
-
-        edges.push(edge);
-    }
-
-    loadBtn.onclick = () => {
-        const files = fileInput.files;
-        if (!files.length) return;
-        let loaded = 0;
-        for (let f of files) {
-            const reader = new FileReader();
-            reader.onload = () => {
-                parseDiff(reader.result, f.name);
-                if (++loaded === files.length) initVis();
-            };
-            reader.readAsText(f);
-        }
-    };
-
-    function initVis() {
-        //
-        // ─── 1) FILL MISSING “M-B” BEATS WITH ZERO ENTRIES ───────────────────
-        //
-        // Group observed beats by measure
-        let beatsByMeasure = {};
-        Object.entries(beatInfo).forEach(([keyStr, info]) => {
-            const M = info.measure, B = info.beat;
-            if (!beatsByMeasure[M]) beatsByMeasure[M] = new Set();
-            beatsByMeasure[M].add(B);
-        });
-
-        // For each measure, find smallest step between beats, then fill in gaps:
-        Object.entries(beatsByMeasure).forEach(([mStr, beatSet]) => {
-            const M = parseInt(mStr, 10);
-            let beatsArr = Array.from(beatSet).sort((a, b) => a - b);
-
-            // Determine minimum positive difference → "step"
-            let step = 1.0;
-            if (beatsArr.length > 1) {
-                const diffs = [];
-                for (let i = 1; i < beatsArr.length; i++) {
-                    diffs.push(beatsArr[i] - beatsArr[i - 1]);
-                }
-                step = Math.min(...diffs);
-            }
-
-            const minB = beatsArr[0],
-                maxB = beatsArr[beatsArr.length - 1],
-                nSteps = Math.round((maxB - minB) / step);
-
-            for (let i = 0; i <= nSteps; i++) {
-                // Avoid floating‐point drift:
-                const Bcur = +((minB + i * step).toFixed(6));
-                const keyStr = `${M}-${Bcur}`;
-                if (!beatInfo[keyStr]) {
-                    // Insert zero‐filled entry if it didn't exist
-                    beatInfo[keyStr] = { measure: M, beat: Bcur };
-                    diffByBeat[keyStr] = 0;
-                    edges.forEach(e => {
-                        e.beatCounts[keyStr] = 0;
-                        e.beatDetails[keyStr] = [];
-                    });
-                }
-            }
-        });
-
-        //
-        // ─── 2) REBUILD beatsByMeasure NOW THAT WE’VE ZERO‐FILLED ───────────────────
-        //
-        beatsByMeasure = {};
-        Object.entries(beatInfo).forEach(([keyStr, info]) => {
-            const M = info.measure, B = info.beat;
-            if (!beatsByMeasure[M]) beatsByMeasure[M] = new Set();
-            beatsByMeasure[M].add(B);
-        });
-
-        // Sort measure numbers ascending:
-        const distinctMeasures = Object.keys(beatsByMeasure)
-            .map(Number)
-            .sort((a, b) => a - b);
-
-        // For each measure, collect a sorted array of its beats:
-        const measureBeats = {};
-        distinctMeasures.forEach(M => {
-            measureBeats[M] = Array.from(beatsByMeasure[M]).sort((a, b) => a - b);
-        });
-
-        //
-        // ─── 3) BUILD A SORTED LIST OF ALL "M-B" KEYS AND ASSIGN INTEGER INDICES ───────────────────
-        //
-        const allBeatKeys = Object.keys(beatInfo).slice();
-        allBeatKeys.sort((a, b) => {
-            const [mA, bA] = a.split("-").map(Number);
-            const [mB, bB] = b.split("-").map(Number);
-            if (mA !== mB) return mA - mB;
-            return bA - bB;
-        });
-
-        const beatIndex = {};
-        allBeatKeys.forEach((keyStr, i) => {
-            beatIndex[keyStr] = i;
-        });
-
-        // Re‐map each edge’s beatCounts/beatDetails → integer keys
-        const linkData = edges.map(e => {
-            const newCounts = {},
-                newDetails = {};
-            Object.entries(e.beatCounts).forEach(([keyStr, count]) => {
-                const idx = beatIndex[keyStr];
-                newCounts[idx] = count;
-                newDetails[idx] = e.beatDetails[keyStr] || [];
             });
-            return {
-                id: `${e.source}__${e.target}`,
-                source: e.source,
-                target: e.target,
-                beatCounts: newCounts,
-                beatDetails: newDetails
-            };
-        });
 
-        //
-        // ─── 4) COMPUTE A SINGLE GLOBAL MAXIMUM DIFF COUNT ───────────────────
-        //
-        const globalMax = d3.max(
-            linkData.map(d =>
-                d3.max(
-                    Object.values(d.beatCounts).length
-                        ? Object.values(d.beatCounts)
-                        : [0]
-                )
-            )
-        ) || 0;
-
-        //
-        // ─── 5) SET UP “MEASURE‐BASED” X‐POSITIONING ───────────────────
-        //
-        const marginLeft = 40,
-            marginRight = 40,
-            innerWidth = width - marginLeft - marginRight,
-            numMeasures = distinctMeasures.length,
-            measureWidth = innerWidth / numMeasures;
-
-        // Precompute a lookup from (beatIdx → absolute X‐coordinate)
-        const beatX = new Array(allBeatKeys.length);
-        allBeatKeys.forEach((keyStr, idx) => {
-            const info = beatInfo[keyStr],
-                M = info.measure,
-                B = info.beat;
-            // Which measure‐index is this?
-            const measureIndex = distinctMeasures.indexOf(M);
-            // Among that measure, which position is this beat?
-            const beatsArr = measureBeats[M],
-                beatIdxInMeasure = beatsArr.indexOf(B),
-                numBeats = beatsArr.length;
-            // Center‐the beat slot inside [measureIndex*measureWidth .. (measureIndex+1)*measureWidth]
-            const xPos = marginLeft
-                + measureIndex * measureWidth
-                + (beatIdxInMeasure + 0.5) * (measureWidth / numBeats);
-            beatX[idx] = xPos;
-        });
-
-        // Build a sorted array of just the X‐values, for bisecting:
-        const beatXs = beatX.slice(); // already in ascending order because allBeatKeys was sorted by (M,B)
-
-        // A small helper to find the nearest beat‐index for any given mouseX:
-        const bisect = d3.bisector(d => d).left;
-        function findNearestIdx(mouseX) {
-            let i = bisect(beatXs, mouseX);
-            if (i === 0) return 0;
-            if (i >= beatXs.length) return beatXs.length - 1;
-            // Compare neighbor to see which is closer
-            return (Math.abs(mouseX - beatXs[i - 1]) < Math.abs(mouseX - beatXs[i]))
-                ? (i - 1)
-                : i;
+            edges.push(edge);
         }
 
-        //
-        // ─── 6) DRAW NETWORK + LEGEND ───────────────────
-        //
-        const nodes = Object.values(nodesMap);
-        const color = d3.scaleOrdinal(d3.schemeCategory10)
-            .domain(linkData.map(d => d.id));
-
-        const legend = netSvg.append("g")
-            .attr("class", "legend")
-            .attr("transform", `translate(${width - 320}, 20)`);
-
-        legend.selectAll("g.entry")
-            .data(linkData)
-            .enter()
-            .append("g")
-            .attr("class", "entry")
-            .attr("transform", (d, i) => `translate(0, ${i * 20})`)
-            .each(function(d) {
-                d3.select(this)
-                    .append("rect")
-                    .attr("x", 0)
-                    .attr("y", -10)
-                    .attr("width", 12)
-                    .attr("height", 12)
-                    .attr("fill", color(d.id));
-                d3.select(this)
-                    .append("text")
-                    .attr("x", 18)
-                    .attr("y", 0)
-                    .text(`${d.source} ↔ ${d.target}`);
-            });
-
-        //
-        // ─── 7) DRAW BAR PANELS (ONE PER EDGE) ───────────────────
-        //
-        const minKey = 0,
-            maxKey = allBeatKeys.length - 1,
-            nEdges = linkData.length,
-            panelHeight = axHeight / nEdges,
-            barWidth = 4;
-
-        linkData.forEach((d, i) => {
-            const yScale = d3.scaleLinear()
-                .domain([0, globalMax || 1])
-                .range([panelHeight, 0]);
-
-            const panelGroup = axSvg.append("g")
-                .attr("transform", `translate(0, ${i * panelHeight})`);
-
-            // (a) Draw baseline across all measures
-            panelGroup.append("line")
-                .attr("x1", marginLeft)
-                .attr("y1", panelHeight)
-                .attr("x2", marginLeft + innerWidth)
-                .attr("y2", panelHeight)
-                .attr("stroke", "#000");
-
-            // (b) Draw a grey line at every measure‐start:
-            //     These are at x = marginLeft + measureIndex*measureWidth for each measureIndex.
-            const measureStarts = distinctMeasures.map((_, mi) => marginLeft + mi * measureWidth);
-            panelGroup.selectAll("line.measureStart")
-                .data(measureStarts)
-                .enter()
-                .append("line")
-                .attr("class", "measureStart")
-                .attr("x1", d => d)
-                .attr("y1", 0)
-                .attr("x2", d => d)
-                .attr("y2", panelHeight)
-                .attr("stroke", "lightgrey")
-                .attr("stroke-width", 1);
-
-            // (c) Draw every beat's bar (zero‐height if count=0), centered at the beat's X
-            for (let keyIdx = minKey; keyIdx <= maxKey; keyIdx++) {
-                const c = d.beatCounts[keyIdx] || 0;
-                const xCenter = beatX[keyIdx],
-                    rectX = xCenter - barWidth/2,
-                    y = yScale(c),
-                    h = panelHeight - y;
-                panelGroup.append("rect")
-                    .attr("x", rectX)
-                    .attr("y", y)
-                    .attr("width", barWidth)
-                    .attr("height", h)
-                    .attr("fill", color(d.id));
+        loadBtn.onclick = () => {
+            const files = fileInput.files;
+            if (!files.length) return;
+            let loaded = 0;
+            for (let f of files) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    parseDiff(reader.result, f.name);
+                    if (++loaded === files.length) initVis();
+                };
+                reader.readAsText(f);
             }
-
-            // (d) Draw left‐axis with identical ticks for every panel
-            const yAxis = d3.axisLeft(yScale).ticks(3);
-            panelGroup.append("g")
-                .attr("transform", `translate(${marginLeft}, 0)`)
-                .call(yAxis);
-
-            // (e) (optional) label for each panel on its left
-            /*panelGroup.append("text")
-                .attr("x", marginLeft - 5)
-                .attr("y", panelHeight / 2)
-                .attr("text-anchor", "end")
-                .attr("alignment-baseline", "middle")
-                .attr("font-size", "12px")
-                .text(`${d.source} ↔ ${d.target}`);*/
-        });
-
-        //
-        // ─── 8) DRAW A SINGLE VERTICAL “CURRENT BEAT” LINE ───────────────────
-        //
-        const indicator = axSvg.append("line")
-            .attr("x1", beatX[minKey])
-            .attr("x2", beatX[minKey])
-            .attr("y1", 0)
-            .attr("y2", axHeight)
-            .attr("stroke", "blue")
-            .attr("opacity", "0.5")
-            .attr("stroke-width", 2);
-
-        let isSelection = false;
-        axSvg.on("click", () => { isSelection = !isSelection; });
-        axSvg.on("mousemove", (event) => {
-            if (!isSelection) return;
-            const [mx] = d3.pointer(event);
-            const nearestIdx = findNearestIdx(mx);
-            setCurrentBeat(nearestIdx);
-        });
-
-        //
-        // ─── 9) FORCE‐DIRECTED NETWORK LAYOUT ───────────────────
-        //
-        const simulation = d3.forceSimulation(nodes)
-            .force("link", d3.forceLink(linkData).id(d => d.id).distance(150))
-            .force("charge", d3.forceManyBody().strength(-200))
-            .force("center", d3.forceCenter(width / 2, height / 2));
-
-        const linkGroups = linkG.selectAll("g.linkGroup")
-            .data(linkData)
-            .enter()
-            .append("g")
-            .attr("class", "linkGroup");
-
-        // (a) Invisible hit‐area for easier hover
-        linkGroups.append("line")
-            .attr("class", "hitarea")
-            .attr("stroke", "transparent")
-            .attr("stroke-width", 10);
-
-        // (b) Visible colored link
-        linkGroups.append("line")
-            .attr("class", "linkLine")
-            .attr("stroke", d => color(d.id))
-            .attr("stroke-width", 1);
-
-        // (c) Hover to show diffs at the current beat
-        linkGroups.on("mouseover", (event, d) => {
-            const currIdx = +beatSlider.value;
-            const keyStr  = allBeatKeys[currIdx];
-            const info    = beatInfo[keyStr];
-            const diffs   = d.beatDetails[currIdx] || [];
-            let content   = `Edge ${d.source} ↔ ${d.target}\n`;
-            content      += `Measure ${info.measure}, Beat ${info.beat.toFixed(2)} diffs:\n`;
-            if (diffs.length) {
-                diffs.forEach(line => { content += line + "\n"; });
-            } else {
-                content += "(no diffs at this beat)\n";
-            }
-            tooltip.html(content)
-                .style("left", (event.pageX + 10) + "px")
-                .style("top",  (event.pageY + 10) + "px")
-                .style("display", "block");
-        })
-            .on("mousemove", (event) => {
-                tooltip.style("left", (event.pageX + 10) + "px")
-                    .style("top",  (event.pageY + 10) + "px");
-            })
-            .on("mouseout", () => {
-                tooltip.style("display", "none");
-            });
-
-        const node = nodeG.selectAll("circle")
-            .data(nodes)
-            .enter()
-            .append("circle")
-            .attr("r", 8)
-            .attr("fill", "orange")
-            .call(drag(simulation));
-
-        const label = nodeG.selectAll("text")
-            .data(nodes)
-            .enter()
-            .append("text")
-            .text(d => d.id)
-            .attr("font-size", 12)
-            .attr("dx", 12)
-            .attr("dy", 4);
-
-        simulation.on("tick", () => {
-            linkGroups.selectAll(".hitarea")
-                .attr("x1", d => d.source.x)
-                .attr("y1", d => d.source.y)
-                .attr("x2", d => d.target.x)
-                .attr("y2", d => d.target.y);
-
-            linkGroups.selectAll(".linkLine")
-                .attr("x1", d => d.source.x)
-                .attr("y1", d => d.source.y)
-                .attr("x2", d => d.target.x)
-                .attr("y2", d => d.target.y)
-                .attr("stroke-width", d => {
-                    const currIdx = +beatSlider.value;
-                    return d.beatCounts[currIdx] || 0;
-                });
-
-            node.attr("cx", d => d.x)
-                .attr("cy", d => d.y);
-            label.attr("x", d => d.x)
-                .attr("y", d => d.y);
-        });
-
-        //
-        // ─── 10) SLIDER SETUP ───────────────────
-        //
-        beatSlider.min = minKey;
-        beatSlider.max = maxKey;
-        beatSlider.step = 1;
-        beatSlider.value = minKey;
-        beatSlider.disabled = false;
-        beatSlider.oninput = () => {
-            const v = +beatSlider.value;
-            setCurrentBeat(v);
         };
 
-        setCurrentBeat(minKey);
+        function initVis() {
 
-        function setCurrentBeat(idx) {
-            beatSlider.value = idx;
-            const keyStr = allBeatKeys[idx];
-            const info   = beatInfo[keyStr];
-            beatLabel.textContent = `Measure: ${info.measure}, Beat: ${info.beat.toFixed(2)}`;
-            indicator
-                .attr("x1", beatX[idx])
-                .attr("x2", beatX[idx]);
-            simulation.alpha(0.1).restart();
-        }
 
-        function drag(sim) {
-            return d3.drag()
-                .on("start", event => {
-                    if (!event.active) sim.alphaTarget(0.3).restart();
-                    event.subject.fx = event.subject.x;
-                    event.subject.fy = event.subject.y;
-                })
-                .on("drag", event => {
-                    event.subject.fx = event.x;
-                    event.subject.fy = event.y;
-                })
-                .on("end", event => {
-                    if (!event.active) sim.alphaTarget(0);
-                    event.subject.fx = null;
-                    event.subject.fy = null;
+            drawNodeTracesOnce({
+                nodesMap,
+                edges,
+                canvasId: "traceCanvas",
+                width,
+                height
+            });
+
+            function getLinkDistance(d) {
+                const currIdx = +beatSlider.value;
+                const diff = d.beatCounts[currIdx] || 0;
+                return 30 + 20 * diff; // base distance + scaled difference
+            }
+
+
+
+            //
+            // ─── 1) FILL MISSING “M-B” BEATS WITH ZERO ENTRIES ───────────────────
+            //
+            // Group observed beats by measure
+            let beatsByMeasure = {};
+            Object.entries(beatInfo).forEach(([keyStr, info]) => {
+                const M = info.measure, B = info.beat;
+                if (!beatsByMeasure[M]) beatsByMeasure[M] = new Set();
+                beatsByMeasure[M].add(B);
+            });
+
+            // For each measure, find smallest step between beats, then fill in gaps:
+            Object.entries(beatsByMeasure).forEach(([mStr, beatSet]) => {
+                const M = parseInt(mStr, 10);
+                let beatsArr = Array.from(beatSet).sort((a, b) => a - b);
+
+                // Determine minimum positive difference → "step"
+                let step = 1.0;
+                if (beatsArr.length > 1) {
+                    const diffs = [];
+                    for (let i = 1; i < beatsArr.length; i++) {
+                        diffs.push(beatsArr[i] - beatsArr[i - 1]);
+                    }
+                    step = Math.min(...diffs);
+                }
+
+                const minB = beatsArr[0],
+                    maxB = beatsArr[beatsArr.length - 1],
+                    nSteps = Math.round((maxB - minB) / step);
+
+                for (let i = 0; i <= nSteps; i++) {
+                    // Avoid floating‐point drift:
+                    const Bcur = +((minB + i * step).toFixed(6));
+                    const keyStr = `${M}-${Bcur}`;
+                    if (!beatInfo[keyStr]) {
+                        // Insert zero‐filled entry if it didn't exist
+                        beatInfo[keyStr] = { measure: M, beat: Bcur };
+                        diffByBeat[keyStr] = 0;
+                        edges.forEach(e => {
+                            e.beatCounts[keyStr] = 0;
+                            e.beatDetails[keyStr] = [];
+                        });
+                    }
+                }
+            });
+
+            //
+            // ─── 2) REBUILD beatsByMeasure NOW THAT WE’VE ZERO‐FILLED ───────────────────
+            //
+            beatsByMeasure = {};
+            Object.entries(beatInfo).forEach(([keyStr, info]) => {
+                const M = info.measure, B = info.beat;
+                if (!beatsByMeasure[M]) beatsByMeasure[M] = new Set();
+                beatsByMeasure[M].add(B);
+            });
+
+            // Sort measure numbers ascending:
+            const distinctMeasures = Object.keys(beatsByMeasure)
+                .map(Number)
+                .sort((a, b) => a - b);
+
+            // For each measure, collect a sorted array of its beats:
+            const measureBeats = {};
+            distinctMeasures.forEach(M => {
+                measureBeats[M] = Array.from(beatsByMeasure[M]).sort((a, b) => a - b);
+            });
+
+            //
+            // ─── 3) BUILD A SORTED LIST OF ALL "M-B" KEYS AND ASSIGN INTEGER INDICES ───────────────────
+            //
+            const allBeatKeys = Object.keys(beatInfo).slice();
+            allBeatKeys.sort((a, b) => {
+                const [mA, bA] = a.split("-").map(Number);
+                const [mB, bB] = b.split("-").map(Number);
+                if (mA !== mB) return mA - mB;
+                return bA - bB;
+            });
+
+            const beatIndex = {};
+            allBeatKeys.forEach((keyStr, i) => {
+                beatIndex[keyStr] = i;
+            });
+
+            // Re‐map each edge’s beatCounts/beatDetails → integer keys
+            const linkData = edges.map(e => {
+                const newCounts = {},
+                    newDetails = {};
+                Object.entries(e.beatCounts).forEach(([keyStr, count]) => {
+                    const idx = beatIndex[keyStr];
+                    newCounts[idx] = count;
+                    newDetails[idx] = e.beatDetails[keyStr] || [];
                 });
+                return {
+                    id: `${e.source}__${e.target}`,
+                    source: e.source,
+                    target: e.target,
+                    beatCounts: newCounts,
+                    beatDetails: newDetails
+                };
+            });
+
+            //
+            // ─── 4) COMPUTE A SINGLE GLOBAL MAXIMUM DIFF COUNT ───────────────────
+            //
+            const globalMax = d3.max(
+                linkData.map(d =>
+                    d3.max(
+                        Object.values(d.beatCounts).length
+                            ? Object.values(d.beatCounts)
+                            : [0]
+                    )
+                )
+            ) || 0;
+
+            //
+            // ─── 5) SET UP “MEASURE‐BASED” X‐POSITIONING ───────────────────
+            //
+            const marginLeft = 40,
+                marginRight = 40,
+                innerWidth = width - marginLeft - marginRight,
+                numMeasures = distinctMeasures.length,
+                measureWidth = innerWidth / numMeasures;
+
+            // Precompute a lookup from (beatIdx → absolute X‐coordinate)
+            const beatX = new Array(allBeatKeys.length);
+            allBeatKeys.forEach((keyStr, idx) => {
+                const info = beatInfo[keyStr],
+                    M = info.measure,
+                    B = info.beat;
+                // Which measure‐index is this?
+                const measureIndex = distinctMeasures.indexOf(M);
+                // Among that measure, which position is this beat?
+                const beatsArr = measureBeats[M],
+                    beatIdxInMeasure = beatsArr.indexOf(B),
+                    numBeats = beatsArr.length;
+                // Center‐the beat slot inside [measureIndex*measureWidth .. (measureIndex+1)*measureWidth]
+                const xPos = marginLeft
+                    + measureIndex * measureWidth
+                    + (beatIdxInMeasure + 0.5) * (measureWidth / numBeats);
+                beatX[idx] = xPos;
+            });
+
+            // Build a sorted array of just the X‐values, for bisecting:
+            const beatXs = beatX.slice(); // already in ascending order because allBeatKeys was sorted by (M,B)
+
+            // A small helper to find the nearest beat‐index for any given mouseX:
+            const bisect = d3.bisector(d => d).left;
+            function findNearestIdx(mouseX) {
+                let i = bisect(beatXs, mouseX);
+                if (i === 0) return 0;
+                if (i >= beatXs.length) return beatXs.length - 1;
+                // Compare neighbor to see which is closer
+                return (Math.abs(mouseX - beatXs[i - 1]) < Math.abs(mouseX - beatXs[i]))
+                    ? (i - 1)
+                    : i;
+            }
+
+            //
+            // ─── 6) DRAW NETWORK + LEGEND ───────────────────
+            //
+            const nodes = Object.values(nodesMap);
+            const color = d3.scaleOrdinal()
+                .domain(linkData.map(d => d.id))
+                .range(d3.quantize(t => d3.interpolateRainbow(t), linkData.length));
+
+
+            const legend = netSvg.append("g")
+                .attr("class", "legend")
+                .attr("transform", `translate(${width - 320}, 20)`);
+
+            legend.selectAll("g.entry")
+                .data(linkData)
+                .enter()
+                .append("g")
+                .attr("class", "entry")
+                .attr("transform", (d, i) => `translate(0, ${i * 20})`)
+                .each(function (d) {
+                    d3.select(this)
+                        .append("rect")
+                        .attr("x", 0)
+                        .attr("y", -10)
+                        .attr("width", 12)
+                        .attr("height", 12)
+                        .attr("fill", color(d.id));
+                    d3.select(this)
+                        .append("text")
+                        .attr("x", 18)
+                        .attr("y", 0)
+                        .text(`${d.source} ↔ ${d.target}`);
+                });
+
+            //
+            // ─── 7) DRAW BAR PANELS (ONE PER EDGE) ───────────────────
+            //
+            const minKey = 0,
+                maxKey = allBeatKeys.length - 1,
+                nEdges = linkData.length,
+                panelHeight = axHeight / nEdges,
+                barWidth = 4;
+
+            linkData.forEach((d, i) => {
+                const yScale = d3.scaleLinear()
+                    .domain([0, globalMax || 1])
+                    .range([panelHeight, 0]);
+
+                const panelGroup = axSvg.append("g")
+                    .attr("transform", `translate(0, ${i * panelHeight})`);
+
+                // (a) Draw baseline across all measures
+                panelGroup.append("line")
+                    .attr("x1", marginLeft)
+                    .attr("y1", panelHeight)
+                    .attr("x2", marginLeft + innerWidth)
+                    .attr("y2", panelHeight)
+                    .attr("stroke", "#000");
+
+                // (b) Draw a grey line at every measure‐start:
+                //     These are at x = marginLeft + measureIndex*measureWidth for each measureIndex.
+                const measureStarts = distinctMeasures.map((_, mi) => marginLeft + mi * measureWidth);
+                panelGroup.selectAll("line.measureStart")
+                    .data(measureStarts)
+                    .enter()
+                    .append("line")
+                    .attr("class", "measureStart")
+                    .attr("x1", d => d)
+                    .attr("y1", 0)
+                    .attr("x2", d => d)
+                    .attr("y2", panelHeight)
+                    .attr("stroke", "lightgrey")
+                    .attr("stroke-width", 1);
+
+                // (c) Draw every beat's bar (zero‐height if count=0), centered at the beat's X
+                for (let keyIdx = minKey; keyIdx <= maxKey; keyIdx++) {
+                    const c = d.beatCounts[keyIdx] || 0;
+                    const xCenter = beatX[keyIdx],
+                        rectX = xCenter - barWidth / 2,
+                        y = yScale(c),
+                        h = panelHeight - y;
+                    panelGroup.append("rect")
+                        .attr("x", rectX)
+                        .attr("y", y)
+                        .attr("width", barWidth)
+                        .attr("height", h)
+                        .attr("fill", color(d.id));
+                }
+
+                // (d) Draw left‐axis with identical ticks for every panel
+                const yAxis = d3.axisLeft(yScale).ticks(3);
+                panelGroup.append("g")
+                    .attr("transform", `translate(${marginLeft}, 0)`)
+                    .call(yAxis);
+
+                // (e) (optional) label for each panel on its left
+                /*panelGroup.append("text")
+                    .attr("x", marginLeft - 5)
+                    .attr("y", panelHeight / 2)
+                    .attr("text-anchor", "end")
+                    .attr("alignment-baseline", "middle")
+                    .attr("font-size", "12px")
+                    .text(`${d.source} ↔ ${d.target}`);*/
+            });
+
+            //
+            // ─── 8) DRAW A SINGLE VERTICAL “CURRENT BEAT” LINE ───────────────────
+            //
+            const indicator = axSvg.append("line")
+                .attr("x1", beatX[minKey])
+                .attr("x2", beatX[minKey])
+                .attr("y1", 0)
+                .attr("y2", axHeight)
+                .attr("stroke", "blue")
+                .attr("opacity", "0.5")
+                .attr("stroke-width", 2);
+
+            let isSelection = false;
+            axSvg.on("click", () => { isSelection = !isSelection; });
+            axSvg.on("mousemove", (event) => {
+                if (!isSelection) return;
+                const [mx] = d3.pointer(event);
+                const nearestIdx = findNearestIdx(mx);
+                setCurrentBeat(nearestIdx);
+            });
+
+            //
+            // ─── 9) FORCE‐DIRECTED NETWORK LAYOUT ───────────────────
+            //
+            const simulation = d3.forceSimulation(nodes)
+                .force("link", d3.forceLink(linkData)
+                    .id(d => d.id)
+                    .distance(getLinkDistance)
+                )
+                .force("charge", d3.forceManyBody().strength(-200))
+                .force("center", d3.forceCenter(width / 2, height / 2));
+
+            const linkGroups = linkG.selectAll("g.linkGroup")
+                .data(linkData)
+                .enter()
+                .append("g")
+                .attr("class", "linkGroup");
+
+            // (a) Invisible hit‐area for easier hover
+            linkGroups.append("line")
+                .attr("class", "hitarea")
+                .attr("stroke", "transparent")
+                .attr("stroke-width", 10);
+
+            // (b) Visible colored link
+            linkGroups.append("line")
+                .attr("class", "linkLine")
+                .attr("stroke", d => color(d.id))
+                .attr("stroke-width", 1);
+
+            // (c) Hover to show diffs at the current beat
+            linkGroups.on("mouseover", (event, d) => {
+                const currIdx = +beatSlider.value;
+                const keyStr = allBeatKeys[currIdx];
+                const info = beatInfo[keyStr];
+                const diffs = d.beatDetails[currIdx] || [];
+                let content = `Edge ${d.source} ↔ ${d.target}\n`;
+                content += `Measure ${info.measure}, Beat ${info.beat.toFixed(2)} diffs:\n`;
+                if (diffs.length) {
+                    diffs.forEach(line => { content += line + "\n"; });
+                } else {
+                    content += "(no diffs at this beat)\n";
+                }
+                tooltip.html(content)
+                    .style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY + 10) + "px")
+                    .style("display", "block");
+            })
+                .on("mousemove", (event) => {
+                    tooltip.style("left", (event.pageX + 10) + "px")
+                        .style("top", (event.pageY + 10) + "px");
+                })
+                .on("mouseout", () => {
+                    tooltip.style("display", "none");
+                });
+
+            const node = nodeG.selectAll("circle")
+                .data(nodes)
+                .enter()
+                .append("circle")
+                .attr("r", 8)
+                .attr("fill", "orange")
+                .call(drag(simulation));
+
+            const label = nodeG.selectAll("text")
+                .data(nodes)
+                .enter()
+                .append("text")
+                .text(d => d.id)
+                .attr("font-size", 12)
+                .attr("dx", 12)
+                .attr("dy", 4);
+
+            simulation.on("tick", () => {
+                linkGroups.selectAll(".hitarea")
+                    .attr("x1", d => d.source.x)
+                    .attr("y1", d => d.source.y)
+                    .attr("x2", d => d.target.x)
+                    .attr("y2", d => d.target.y);
+
+                linkGroups.selectAll(".linkLine")
+                    .attr("x1", d => d.source.x)
+                    .attr("y1", d => d.source.y)
+                    .attr("x2", d => d.target.x)
+                    .attr("y2", d => d.target.y)
+                    .attr("stroke-width", d => {
+                        const currIdx = +beatSlider.value;
+                        return d.beatCounts[currIdx] || 0;
+                    });
+
+                node.attr("cx", d => d.x)
+                    .attr("cy", d => d.y);
+                label.attr("x", d => d.x)
+                    .attr("y", d => d.y);
+            });
+
+            //
+            // ─── 10) SLIDER SETUP ───────────────────
+            //
+            beatSlider.min = minKey;
+            beatSlider.max = maxKey;
+            beatSlider.step = 1;
+            beatSlider.value = minKey;
+            beatSlider.disabled = false;
+            beatSlider.oninput = () => {
+                const v = +beatSlider.value;
+                setCurrentBeat(v);
+            };
+
+            setCurrentBeat(minKey);
+
+            function setCurrentBeat(idx) {
+                beatSlider.value = idx;
+                const keyStr = allBeatKeys[idx];
+                const info = beatInfo[keyStr];
+                beatLabel.textContent = `Measure: ${info.measure}, Beat: ${info.beat.toFixed(2)}`;
+                indicator
+                    .attr("x1", beatX[idx])
+                    .attr("x2", beatX[idx]);
+
+                // Update link distances for current beat
+                simulation.force("link").distance(getLinkDistance);
+                simulation.alpha(0.5).restart();
+            }
+
+            function drag(sim) {
+                return d3.drag()
+                    .on("start", event => {
+                        if (!event.active) sim.alphaTarget(0.3).restart();
+                        event.subject.fx = event.subject.x;
+                        event.subject.fy = event.subject.y;
+                    })
+                    .on("drag", event => {
+                        event.subject.fx = event.x;
+                        event.subject.fy = event.y;
+                    })
+                    .on("end", event => {
+                        if (!event.active) sim.alphaTarget(0);
+                        event.subject.fx = null;
+                        event.subject.fy = null;
+                    });
+            }
         }
-    }
-</script>
+
+
+        function drawNodeTracesOnce({ nodesMap, edges, canvasId = "traceCanvas", width = 800, height = 600 }) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) {
+                console.error(`Canvas #${canvasId} not found.`);
+                return;
+            }
+            const ctx = canvas.getContext("2d");
+            canvas.width = width;
+            canvas.height = height;
+
+            // Deep-copy nodes so we don't mutate the live ones
+            const rawNodes = Object.values(nodesMap).map(n => ({ id: n.id }));
+            const nodeById = new Map(rawNodes.map(n => [n.id, n]));
+
+            const links = edges.map(e => {
+                const totalDiff = Object.values(e.beatCounts || {}).reduce((a, b) => a + b, 0);
+                return {
+                    source: nodeById.get(e.source),
+                    target: nodeById.get(e.target),
+                    value: totalDiff
+                };
+            });
+
+            const traces = {};
+            rawNodes.forEach(n => traces[n.id] = []);
+
+            const nodeColors = d3.scaleOrdinal()
+                .domain(rawNodes.map(n => n.id))
+                .range(d3.quantize(t => d3.interpolateRainbow(t), rawNodes.length));
+
+            // Simulate
+            const sim = d3.forceSimulation(rawNodes)
+                .force("link", d3.forceLink(links)
+                    .id(d => d.id)
+                    .distance(d => 30 + (d.value || 1) * 10))
+                .force("charge", d3.forceManyBody().strength(-120))
+                .force("center", d3.forceCenter(width / 2, height / 2))
+                .stop();
+
+            const steps = 300;
+            for (let i = 0; i < steps; i++) {
+                sim.tick();
+                rawNodes.forEach(n => {
+                    if (typeof n.x === "number" && typeof n.y === "number") {
+                        traces[n.id].push([n.x, n.y]);
+                    }
+                });
+            }
+
+            // Calculate bounding box
+            const allPoints = Object.values(traces).flat();
+            const xs = allPoints.map(p => p[0]);
+            const ys = allPoints.map(p => p[1]);
+            const minX = Math.min(...xs), maxX = Math.max(...xs);
+            const minY = Math.min(...ys), maxY = Math.max(...ys);
+            const padding = 40;
+            const scale = Math.min(
+                (width - 2 * padding) / (maxX - minX),
+                (height - 2 * padding) / (maxY - minY)
+            );
+            const offsetX = padding - minX * scale;
+            const offsetY = padding - minY * scale;
+
+            // Draw traces
+            ctx.clearRect(0, 0, width, height);
+            ctx.globalAlpha = 0.9;
+            ctx.lineWidth = 2;
+
+            rawNodes.forEach(n => {
+                const path = traces[n.id];
+                if (!path || path.length < 2) return;
+
+                ctx.beginPath();
+                const [x0, y0] = path[0];
+                ctx.strokeStyle = nodeColors(n.id);
+                ctx.moveTo(x0 * scale + offsetX, y0 * scale + offsetY);
+                for (let i = 1; i < path.length; i++) {
+                    const [x, y] = path[i];
+                    ctx.lineTo(x * scale + offsetX, y * scale + offsetY);
+                }
+                ctx.stroke();
+
+                // Draw arrowhead
+                const len = path.length;
+                const [x1, y1] = path[len - 2];
+                const [x2, y2] = path[len - 1];
+                const angle = Math.atan2(y2 - y1, x2 - x1);
+                const endX = x2 * scale + offsetX;
+                const endY = y2 * scale + offsetY;
+                const arrowLength = 10;
+                const arrowAngle = Math.PI / 6;
+
+                ctx.beginPath();
+                ctx.moveTo(endX, endY);
+                ctx.lineTo(
+                    endX - arrowLength * Math.cos(angle - arrowAngle),
+                    endY - arrowLength * Math.sin(angle - arrowAngle)
+                );
+                ctx.lineTo(
+                    endX - arrowLength * Math.cos(angle + arrowAngle),
+                    endY - arrowLength * Math.sin(angle + arrowAngle)
+                );
+                ctx.closePath();
+                ctx.fillStyle = nodeColors(n.id);
+                ctx.fill();
+            });
+
+            // Draw legend
+            ctx.globalAlpha = 1.0;
+            ctx.font = "12px sans-serif";
+            const legendX = 700, legendY = 20, lh = 18;
+            rawNodes.forEach((n, i) => {
+                ctx.fillStyle = nodeColors(n.id);
+                ctx.fillRect(legendX, legendY + i * lh - 10, 10, 10);
+                ctx.fillStyle = "#000";
+                ctx.fillText(n.id, legendX + 15, legendY + i * lh);
+            });
+        }
+
+
+
+
+    </script>
 
 
 </body>
+
 </html>
