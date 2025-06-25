@@ -476,7 +476,7 @@
                     .id(d => d.id)
                     .distance(getLinkDistance)
                 )
-                .force("charge", d3.forceManyBody().strength(-200))
+                .force("charge", d3.forceManyBody().strength(-2000))
                 .force("center", d3.forceCenter(width / 2, height / 2));
 
             const linkGroups = linkG.selectAll("g.linkGroup")
@@ -554,7 +554,7 @@
                     .attr("y2", d => d.target.y)
                     .attr("stroke-width", d => {
                         const currIdx = +beatSlider.value;
-                        return d.beatCounts[currIdx] || 0;
+                        return Math.log(d.beatCounts[currIdx])*2 || 0;
                     });
 
                 node.attr("cx", d => d.x)
