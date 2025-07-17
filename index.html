@@ -75,17 +75,14 @@
 <div class="header">
     <img src="logo.svg" width="50"/>
     <h1>Multiple MusicDiff Visualiser</h1></div>
-<div class="load">
-    Select multiple diff‐files:
-    <input type="file" id="diffFiles" multiple accept=".txt"/>
+<div class="load">Select multiple musicdiff-files: <input type="file" id="diffFiles" multiple accept=".txt"/>
     <button id="loadBtn">Load</button>
-    <br/><br/>
-
-    <!-- Allow selecting any number of MEI files -->
-    (Optional) Select one or more MEI files:
-    <input type="file" id="meiFiles" multiple accept=".mei"/>
+    <button id="example">Example</button>
+    <label>
+        <input type="checkbox" id="weightToggle" />
+        Use dynamic weights
+    </label>
 </div>
-
 
 <svg id="network" width="1200" height="400"></svg>
 <span id="beatLabel">Measure: –, Beat: –</span>
@@ -96,8 +93,8 @@
 
 
 <div id="tooltip" class="tooltip" style="display: none;"></div>
-<script src="https://www.verovio.org/javascript/latest/verovio-toolkit-wasm.js" defer></script>
-<script type="module" src="javascript/main.js"></script>
+<script src="javascript/main.js">
+</script>
 
 
 </body>
