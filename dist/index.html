@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Multiple MusicDiff Visualiser</title>
+  <script type="module" crossorigin src="/assets/index-D4XgeRSa.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-D51bAFx2.css">
+</head>
+<body>
+<div class="app-container">
+    <aside class="sidebar">
+        <header class="sidebar-header">
+            <h1>MusicDiff</h1>
+            <p>Multiple Edition Visualiser</p>
+        </header>
+        <section class="control-group">
+            <h2>1. Daten laden</h2>
+            <input type="file" id="diffFiles" multiple accept=".txt"/>
+            <button id="loadBtn">Laden</button>
+            <button id="exampleBtn">Beispiel laden</button>
+        </section>
+        <section class="control-group">
+            <h2>2. Ansicht steuern</h2>
+            <div class="vis-options">
+                <label><input type="radio" name="visType" value="network" checked> Netzwerk</label>
+                <label><input type="radio" name="visType" value="tree"> Baum</label>
+            </div>
+        </section>
+        <section class="control-group">
+            <h2>3. Analyse</h2>
+            <div class="analysis-options">
+                <button id="totalTreeBtn">Gesamt-Baum</button>
+                <button id="totalNetworkBtn">Gesamt-Netzwerk</button>
+                <button id="resetViewBtn">Live-Ansicht</button>
+            </div>
+        </section>
+        <section class="control-group" id="legends">
+            <h2>Legende</h2>
+            <div id="axis-legend"></div>
+        </section>
+    </aside>
+    <main class="main-content">
+        <div class="vis-wrapper">
+            <svg id="network" class="vis-container"></svg>
+            <svg id="tree" class="vis-container" style="display: none;"></svg>
+        </div>
+        <div id="axis-wrapper">
+            <svg id="axis"></svg>
+        </div>
+        <p class="axis-note"><small>Auf die Achse klicken, um die Auswahl per Maus zu aktivieren.</small></p>
+        <div class="slider-container">
+            <input type="range" id="beatSlider" min="0" max="1" step="1" disabled/>
+            <span id="beatLabel"></span>
+        </div>
+    </main>
+</div>
+<div id="tooltip" class="tooltip" style="opacity: 0; pointer-events: none;"></div>
+<div id="loader" class="loader-overlay" style="display: none;">
+    <div class="spinner"></div>
+</div>
+</body>
+</html>

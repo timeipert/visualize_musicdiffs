@@ -1,0 +1,702 @@
+--- /Users/adriannachtwey/Desktop/Promotion_Vorstudie/Vergleiche/Testgruppe/Op33/Nr.1/1803_BdA_ED_Op33_1.mei
++++ /Users/adriannachtwey/Desktop/Promotion_Vorstudie/Vergleiche/Testgruppe/Op33/Nr.1/1825_Andre_Op33_1.mei
+@@ measure 0, staff 1, beat 0.5 @@
++(MetronomeMark) MM:TX:Andante grazioso quasi Allegretto.
+@@ measure 0, staff 1, beat 0.5 @@
+-(MetronomeMark) MM:TX:ANDANTE Grazioso, quasi allegretto.
+@@ measure 0, staff 1, beat 1.0 @@
+-(Dynamic) DY:p
+@@ measure 0, staff 1, beat 1.0 @@
+-(voice) [G3 (quarter note), stemDirection=up]
+@@ measure 1, staff 1, beat 1.0 @@
++(Slur) SLUR dur=1.5 numNotes=2
+@@ measure 1, staff 1, beat 1.0 @@
+-(Slur) SLUR dur=3.0 numNotes=2
+@@ measure 1, staff 1, beat 4.0 @@
+-(Note:flagsbeams) B4 (16th note), 2 flags
++(Note:flagsbeams) B4 (eighth note), 1 flag
+@@ measure 1, staff 1, beat 4.0 @@
+-(Slur:placement) SLUR changedStyle={placement:above}
++(Slur:placement) SLUR changedStyle={placement:below}
+@@ measure 1, staff 2, beat 1.0 @@
++(Slur) SLUR dur=3.0 numNotes=2
+@@ measure 1, staff 2, beat 1.0 @@
+-(Slur) SLUR dur=1.5 numNotes=2
+@@ measure 2, staff 1, beat 1.0 @@
+-(Note:flagsbeams) A4 (32nd note), 3 beams=[stop, stop, stop]
++(Note:flagsbeams) A4 (16th note), 2 beams=[stop, stop]
+@@ measure 2, staff 1, beat 1.0 @@
+-(Note:flagsbeams) G4 (32nd note), 3 beams=[start, start, start]
++(Note:flagsbeams) G4 (16th note), 2 beams=[start, start]
+@@ measure 2, staff 2, beat 1.0 @@
+-(Slur:placement) SLUR changedStyle={placement:above}
++(Slur:placement) SLUR changedStyle={placement:below}
+@@ measure 3, staff 1, beat 1.0 @@
+-(Note:flagsbeams) G4 (16th note), 2 flags
++(Note:flagsbeams) G4 (eighth note), 1 flag
+@@ measure 3, staff 2, beat 1.0 @@
+-(Slur) SLUR dur=3.0 numNotes=2
+@@ measure 4, staff 1, beat 4.0 @@
+-(Note:flagsbeams) A4 flat (16th triplet (1/6 ql) note), 2 beams=[start, start]
++(Note:flagsbeams) A4 flat (32nd triplet (1/12 ql) note), 3 beams=[start, start, start]
+@@ measure 4, staff 1, beat 4 1/3 @@
+-(Note:flagsbeams) B4 (16th triplet (1/6 ql) note), 2 beams=[continue, continue]
++(Note:flagsbeams) B4 (32nd triplet (1/12 ql) note), 3 beams=[continue, continue, continue]
+@@ measure 4, staff 1, beat 4 2/3 @@
+-(Note:flagsbeams) C5 (16th triplet (1/6 ql) note), 2 beams=[stop, stop]
++(Note:flagsbeams) C5 (32nd triplet (1/12 ql) note), 3 beams=[stop, stop, stop]
+@@ measure 4, staff 1, beat 5.0 @@
+-(Note:flagsbeams) D5 (16th triplet (1/6 ql) note), 2 beams=[start, start]
++(Note:flagsbeams) D5 (32nd triplet (1/12 ql) note), 3 beams=[start, start, start]
+@@ measure 4, staff 1, beat 5.0 @@
+-(Note:spacebefore) D5 (16th triplet (1/6 ql) note), spacebefore=0.0
++(Note:spacebefore) D5 (32nd triplet (1/12 ql) note), spacebefore=0.25
+@@ measure 4, staff 1, beat 5 1/3 @@
+-(Note:flagsbeams) E5 (16th triplet (1/6 ql) note), 2 beams=[continue, continue]
++(Note:flagsbeams) E5 (32nd triplet (1/12 ql) note), 3 beams=[continue, continue, continue]
+@@ measure 4, staff 1, beat 5 2/3 @@
+-(Note:flagsbeams) F5 (16th triplet (1/6 ql) note), 2 beams=[stop, stop]
++(Note:flagsbeams) F5 (32nd triplet (1/12 ql) note), 3 beams=[stop, stop, stop]
+@@ measure 4, staff 1, beat 6.0 @@
+-(Note:spacebefore) G5 (32nd quintuplet (1/10 ql) note), spacebefore=0.0
++(Note:spacebefore) G5 (32nd quintuplet (1/10 ql) note), spacebefore=0.25
+@@ measure 5, staff 1, beat 4.0 @@
+-(Note:flagsbeams) B4 (16th note), 2 flags
++(Note:flagsbeams) B4 (eighth note), 1 flag
+@@ measure 6, staff 1, beat 1.5 @@
++(Dynamic:offset) DY:sf offset=0.25
+@@ measure 6, staff 1, beat 1.5 @@
++(Dynamic:placement) DY:sf changedStyle={placement:above}
+@@ measure 6, staff 1, beat 2.0 @@
+-(Dynamic:offset) DY:sf offset=0.5
+@@ measure 6, staff 1, beat 2.0 @@
+-(Dynamic:placement) DY:sf changedStyle={placement:below}
+@@ measure 7, staff 1, beat 1.0 @@
+-(Note:flagsbeams) G4 (16th note), 2 flags
++(Note:flagsbeams) G4 (eighth note), 1 flag
+@@ measure 7, staff 1, beat 1.0 @@
+-(Slur) SLUR dur=1.5 numNotes=2
+@@ measure 7, staff 1, beat 4.0 @@
+-(Slur) SLUR dur=1.5 numNotes=2
+@@ measure 8, staff 2, beat 2.0 @@
+-(Rest:pitch) eighth rest
++(Rest:pitch) eighth rest
+@@ measure 8, staff 2, beat 3.0 @@
+-(Rest:pitch) eighth rest
++(Rest:pitch) eighth rest
+@@ measure 9, staff 1, beat 1.0 @@
+-(voice) [E3 (quarter note), stemDirection=down]
+@@ measure 11, staff 1, beat 4.0 @@
+-(Note:artic) E4 (eighth note), articulations=[spiccato(above)]
++(Note:artic) E4 (eighth note), articulations=[staccato(above)]
+@@ measure 11, staff 1, beat 5.0 @@
+-(Note:artic) F4 (eighth note), articulations=[spiccato(above)]
++(Note:artic) F4 (eighth note), articulations=[staccato(above)]
+@@ measure 11, staff 1, beat 6.0 @@
+-(Note:artic) G4 (eighth note), articulations=[spiccato(above)]
++(Note:artic) G4 (eighth note), articulations=[staccato(above)]
+@@ measure 13, staff 1, beat 0.5 @@
++(Dynamic:offset) DY:sf offset=-0.25
+@@ measure 13, staff 1, beat 0.5 @@
++(Dynamic:alignVertical) DY:sf changedStyle={alignVertical:middle}
+@@ measure 13, staff 1, beat 1.0 @@
+-(Slur) SLUR dur=1.5 numNotes=2
+@@ measure 13, staff 1, beat 1.0 @@
+-(Dynamic:offset) DY:sf offset=0.0
+@@ measure 13, staff 1, beat 1.0 @@
+-(Dynamic:alignVertical) DY:sf changedStyle={}
+@@ measure 14, staff 1, beat 0.5 @@
++(Dynamic:offset) DY:sf offset=-0.25
+@@ measure 14, staff 1, beat 0.5 @@
++(Dynamic:alignVertical) DY:sf changedStyle={alignVertical:middle}
+@@ measure 14, staff 1, beat 1.0 @@
+-(Note:dots) A5 (dotted quarter note), dots=1
++(Note:dots) A5 (quarter note), dots=0
+@@ measure 14, staff 1, beat 1.0 @@
+-(Slur) SLUR dur=2.0 numNotes=2
+@@ measure 14, staff 1, beat 1.0 @@
+-(Dynamic:offset) DY:sf offset=0.0
+@@ measure 14, staff 1, beat 1.0 @@
+-(Dynamic:alignVertical) DY:sf changedStyle={}
+@@ measure 15, staff 1, beat 0.5 @@
++(Dynamic:offset) DY:sf offset=-0.25
+@@ measure 15, staff 1, beat 0.5 @@
++(Dynamic:alignVertical) DY:sf changedStyle={alignVertical:middle}
+@@ measure 15, staff 1, beat 1.0 @@
+-(Dynamic:offset) DY:sf offset=0.0
+@@ measure 15, staff 1, beat 1.0 @@
+-(Dynamic:alignVertical) DY:sf changedStyle={}
+@@ measure 15, staff 1, beat 4.0 @@
+-(Note:artic) E5 (eighth note), articulations=[spiccato(above)]
++(Note:artic) E5 (eighth note), articulations=[]
+@@ measure 15, staff 1, beat 5.0 @@
+-(Note:artic) F5 (eighth note), articulations=[spiccato(above)]
++(Note:artic) F5 (eighth note), articulations=[]
+@@ measure 15, staff 1, beat 6.0 @@
+-(Note:artic) G5 (eighth note), articulations=[spiccato(above)]
++(Note:artic) G5 (eighth note), articulations=[]
+@@ measure 15, staff 2, beat 4.0 @@
+-(Note:artic) G4 (eighth note), articulations=[spiccato(below)]
++(Note:artic) G4 (eighth note), articulations=[staccato(below)]
+@@ measure 15, staff 2, beat 5.0 @@
+-(Note:artic) F4 (eighth note), articulations=[spiccato(below)]
++(Note:artic) F4 (eighth note), articulations=[staccato(below)]
+@@ measure 15, staff 2, beat 6.0 @@
+-(Note:artic) E4 (eighth note), articulations=[spiccato(below)]
++(Note:artic) E4 (eighth note), articulations=[staccato(below)]
+@@ measure 19, staff 2, beat 2.5 @@
+-(Note:artic) G4 (16th note), articulations=[]
++(Note:artic) G4 (16th note), articulations=[staccato(below)]
+@@ measure 19, staff 2, beat 3.0 @@
+-(Note:artic) F4 (16th note), articulations=[]
++(Note:artic) F4 (16th note), articulations=[staccato(below)]
+@@ measure 19, staff 2, beat 3.5 @@
+-(Note:artic) E4 (16th note), articulations=[]
++(Note:artic) E4 (16th note), articulations=[staccato(below)]
+@@ measure 19, staff 2, beat 5.5 @@
+-(Note:artic) G4 (16th note), articulations=[]
++(Note:artic) G4 (16th note), articulations=[staccato(below)]
+@@ measure 19, staff 2, beat 6.0 @@
+-(Note:artic) F4 (16th note), articulations=[]
++(Note:artic) F4 (16th note), articulations=[staccato(below)]
+@@ measure 19, staff 2, beat 6.5 @@
+-(Note:artic) E4 (16th note), articulations=[]
++(Note:artic) E4 (16th note), articulations=[staccato(below)]
+@@ measure 20, staff 1, beat 1.25 @@
+-(Dynamic:offset) DY:cres: offset=0.125
+@@ measure 20, staff 1, beat 1.25 @@
+-(Dynamic:alignVertical) DY:cres: changedStyle={}
+@@ measure 20, staff 1, beat 1.5 @@
++(Dynamic:offset) DY:cres: offset=0.25
+@@ measure 20, staff 1, beat 1.5 @@
++(Dynamic:alignVertical) DY:cres: changedStyle={alignVertical:middle}
+@@ measure 21, staff 1, beat 1.0 @@
+-(Dynamic:alignVertical) DY:f changedStyle={}
++(Dynamic:alignVertical) DY:f changedStyle={alignVertical:middle}
+@@ measure 21, staff 2, beat 2.0 @@
+-(Rest:pitch) eighth rest
++(Rest:pitch) eighth rest
+@@ measure 21, staff 2, beat 3.0 @@
+-(Rest:pitch) eighth rest
++(Rest:pitch) eighth rest
+@@ measure 21, staff 2, beat 4.0 @@
+-(Rest:pitch) quarter rest
++(Rest:pitch) quarter rest
+@@ measure 21, staff 2, beat 6.0 @@
+-(Rest:pitch) eighth rest
++(Rest:pitch) eighth rest
+@@ measure 22, staff 2, beat 4.0 @@
+-(Note:artic) B2 (eighth note), articulations=[spiccato(below)]
++(Note:artic) B2 (eighth note), articulations=[staccato(below)]
+@@ measure 23, staff 1, beat 3.75 @@
+-(Dynamic) DY:cres:
+@@ measure 23, staff 2, beat 1.0 @@
++(measure) measure 23
+@@ measure 24, staff 1, beat 3.0 @@
++(Slur:offset) SLUR offset=1.0
+@@ measure 24, staff 1, beat 3.0 @@
++(Slur:dur) SLUR dur=0.5
+@@ measure 24, staff 1, beat 3.0 @@
+-(Slur) SLUR dur=0.5 numNotes=2
+@@ measure 24, staff 1, beat 4.0 @@
++(Slur) SLUR dur=1.0 numNotes=2
+@@ measure 24, staff 1, beat 4.0 @@
++(Dynamic:offset) DY:sfp offset=1.5
+@@ measure 24, staff 1, beat 4.0 @@
+-(Slur:offset) SLUR offset=1.5
+@@ measure 24, staff 1, beat 4.0 @@
+-(Slur:dur) SLUR dur=1.0
+@@ measure 24, staff 1, beat 5.0 @@
+-(Dynamic:offset) DY:sfp offset=2.0
+@@ measure 24, staff 1, beat 6 2/5 @@
++(TextExpression) TX:dol:
+@@ measure 24, staff 2, beat 1.0 @@
+-(measure) measure 24
+@@ measure 25, staff 1, beat 1.0 @@
+-(TextExpression) TX:dol.
+@@ measure 25, staff 1, beat 4.0 @@
+-(Note:flagsbeams) B4 (16th note), 2 flags
++(Note:flagsbeams) B4 (eighth note), 1 flag
+@@ measure 26, staff 1, beat 1.0 @@
+-(Note:flagsbeams) A4 (32nd note), 3 beams=[stop, stop, stop]
++(Note:flagsbeams) A4 (16th note), 2 beams=[stop, stop]
+@@ measure 26, staff 1, beat 1.0 @@
+-(Note:flagsbeams) G4 (32nd note), 3 beams=[start, start, start]
++(Note:flagsbeams) G4 (16th note), 2 beams=[start, start]
+@@ measure 27, staff 1, beat 1.0 @@
+-(Note:flagsbeams) G4 (16th note), 2 flags
++(Note:flagsbeams) G4 (eighth note), 1 flag
+@@ measure 29, staff 1, beat 1.0 @@
+-(Note:accid) A4 (16th note)
++(Note:accid) A4 flat (16th note)
+@@ measure 31, staff 2, beat 6.0 @@
++(Note:pitch) [F3,A3] (eighth chord), pitch[0]=F3
+@@ measure 32, staff 1, beat 1.0 @@
++(RepeatBracket) END:1:len=1 dur=1.5
+@@ measure 32, staff 1, beat 1.0 @@
+-(RepeatBracket) END:('', '1.'):len=1 dur=1.5
+@@ measure 32, staff 2, beat 1.0 @@
++(Note:pitch) [E3,G3] (quarter chord), pitch[0]=E3
+@@ measure 32, staff 2, beat 1.0 @@
+-(Note:stemdir) G3 (quarter note), stemDirection=up
++(Chord:stemdir) [E3,G3] (quarter chord), stemDirection=down
+@@ measure 32, staff 2, beat 1.0 @@
++(RepeatBracket) END:1:len=1 dur=1.5
+@@ measure 32, staff 2, beat 1.0 @@
+-(RepeatBracket) END:('', '1.'):len=1 dur=1.5
+@@ measure 33, staff 1, beat 1.0 @@
++(RepeatBracket) END:2:len=1 dur=3.0
+@@ measure 33, staff 1, beat 1.0 @@
+-(RepeatBracket) END:('', '2.'):len=1 dur=3.0
+@@ measure 33, staff 1, beat 3.0 @@
+-(Slur:offset) SLUR offset=1.0
+@@ measure 33, staff 1, beat 3.0 @@
+-(Slur:dur) SLUR dur=2.0
+@@ measure 33, staff 1, beat 3.0 @@
+-(Slur:placement) SLUR changedStyle={placement:below}
+@@ measure 33, staff 1, beat 4.0 @@
++(Slur:offset) SLUR offset=1.5
+@@ measure 33, staff 1, beat 4.0 @@
++(Slur:dur) SLUR dur=1.5
+@@ measure 33, staff 1, beat 4.0 @@
++(Slur:placement) SLUR changedStyle={placement:above}
+@@ measure 33, staff 2, beat 1.0 @@
++(Note:pitch) [E3,G3] (quarter chord), pitch[1]=G3
+@@ measure 33, staff 2, beat 1.0 @@
++(RepeatBracket) END:2:len=1 dur=3.0
+@@ measure 33, staff 2, beat 1.0 @@
+-(RepeatBracket) END:('', '2.'):len=1 dur=3.0
+@@ measure 33, staff 2, beat 3.0 @@
+-(Slur) SLUR dur=2.0 numNotes=2
+@@ measure 33, staff 2, beat 4.0 @@
++(Slur) SLUR dur=1.5 numNotes=2
+@@ measure 34, staff 1, beat 1.0 @@
+-(Note:stemdir) E5 (eighth note), stemDirection=down
++(Note:stemdir) E5 (eighth note), stemDirection=up
+@@ measure 34, staff 1, beat 1.0 @@
+-(Slur:placement) SLUR changedStyle={placement:above}
++(Slur:placement) SLUR changedStyle={placement:below}
+@@ measure 34, staff 1, beat 2.0 @@
+-(Note:stemdir) B4 (eighth note), stemDirection=down
++(Note:stemdir) B4 (eighth note), stemDirection=up
+@@ measure 34, staff 1, beat 3.0 @@
+-(Note:stemdir) A4 natural (eighth note), stemDirection=down
++(Note:stemdir) A4 natural (eighth note), stemDirection=up
+@@ measure 37, staff 1, beat 1.0 @@
++(Slur) SLUR dur=3.0 numNotes=2
+@@ measure 37, staff 1, beat 3.0 @@
+-(Slur) SLUR dur=2.0 numNotes=2
+@@ measure 38, staff 2, beat 1.0 @@
++(Rest) eighth rest
+@@ measure 38, staff 2, beat 1.0 @@
+-(Slur:offset) SLUR offset=0.0
+@@ measure 38, staff 2, beat 2.0 @@
++(Slur:offset) SLUR offset=0.5
+@@ measure 39, staff 1, beat 4.0 @@
+-(Rest:pitch) eighth rest
++(Rest:pitch) eighth rest
+@@ measure 39, staff 1, beat 5.0 @@
+-(Rest:pitch) eighth rest
++(Rest:pitch) eighth rest
+@@ measure 39, staff 1, beat 6.0 @@
++(Note) G3 flat (eighth note), stemDirection=up
+@@ measure 39, staff 1, beat 6.0 @@
+-(Note:pitch) [G3 flat,C4] (eighth chord), pitch[0]=G3
+@@ measure 40, staff 1, beat 6.0 @@
++(Note) G3 flat (eighth note), stemDirection=up
+@@ measure 40, staff 1, beat 6.0 @@
+-(Note:pitch) [G3 flat,C4] (eighth chord), pitch[0]=G3
+@@ measure 40, staff 2, beat 4.0 @@
+-(Note:stemdir) A1 (dotted quarter note), stemDirection=down
++(Note:stemdir) A1 (dotted quarter note), stemDirection=up
+@@ measure 41, staff 1, beat 1.0 @@
+-(Slur:dur) SLUR dur=2.5
++(Slur:dur) SLUR dur=3.0
+@@ measure 41, staff 1, beat 6.0 @@
++(Note) A3 (eighth note), stemDirection=up
+@@ measure 41, staff 1, beat 6.0 @@
+-(Note:pitch) [A3,D4 natural] (eighth chord), pitch[0]=A3
+@@ measure 42, staff 1, beat 1.0 @@
+-(Slur:dur) SLUR dur=3.0
++(Slur:dur) SLUR dur=4.0
+@@ measure 42, staff 1, beat 3.0 @@
+-(Note:pitch) A4 (eighth note)
++(Note:pitch) G4 flat (eighth note)
+@@ measure 42, staff 1, beat 3.0 @@
+-(Note:accid) A4 (eighth note)
++(Note:accid) G4 flat (eighth note)
+@@ measure 42, staff 1, beat 6.0 @@
++(Note) A3 (eighth note), stemDirection=up
+@@ measure 42, staff 1, beat 6.0 @@
+-(Note:pitch) [A3,D4 natural] (eighth chord), pitch[0]=A3
+@@ measure 43, staff 1, beat 1.0 @@
+-(Rest) eighth rest
+@@ measure 43, staff 1, beat 1.0 @@
+-(Note:pitch) E4 (quarter note)
++(Note:pitch) G3 flat (quarter note)
+@@ measure 43, staff 1, beat 1.0 @@
+-(Note:accid) E4 (quarter note)
++(Note:accid) G3 flat (quarter note)
+@@ measure 43, staff 1, beat 1.0 @@
++(Rest) eighth rest
+@@ measure 43, staff 1, beat 1.0 @@
+-(Slur:dur) SLUR dur=3.5
++(Slur:dur) SLUR dur=3.0
+@@ measure 43, staff 1, beat 2.0 @@
+-(Note:pitch) G3 flat (quarter note)
++(Note:pitch) E4 (quarter note)
+@@ measure 43, staff 1, beat 2.0 @@
+-(Note:accid) G3 flat (quarter note)
++(Note:accid) E4 (quarter note)
+@@ measure 43, staff 1, beat 2.0 @@
+-(Dynamic) DY:cres:
+@@ measure 43, staff 1, beat 4.0 @@
++(Dynamic) DY:cres:
+@@ measure 44, staff 1, beat 3.0 @@
+-(Dynamic:alignVertical) DY:sf changedStyle={}
++(Dynamic:alignVertical) DY:sf changedStyle={alignVertical:middle}
+@@ measure 44, staff 1, beat 6.0 @@
+-(Dynamic:alignVertical) DY:sf changedStyle={}
++(Dynamic:alignVertical) DY:sf changedStyle={alignVertical:middle}
+@@ measure 44, staff 2, beat 3.0 @@
+-(Slur) SLUR dur=1.0 numNotes=2
+@@ measure 44, staff 2, beat 5.0 @@
+-(Rest:pitch) eighth rest
++(Rest:pitch) eighth rest
+@@ measure 44, staff 2, beat 6.0 @@
+-(Slur) SLUR dur=1.0 numNotes=2
+@@ measure 46, staff 1, beat 1.0 @@
+-(Dynamic:alignVertical) DY:p changedStyle={alignVertical:middle}
++(Dynamic:alignVertical) DY:p changedStyle={}
+@@ measure 50, staff 1, beat 1.0 @@
+-(Dynamic:offset) DY:cres: offset=0.0
+@@ measure 50, staff 1, beat 1.5 @@
++(Dynamic:offset) DY:cres: offset=0.25
+@@ measure 51, staff 1, beat 1.0 @@
++(SystemLayout) SB
+@@ measure 51, staff 1, beat 4.0 @@
+-(Note:artic) G5 (eighth note), articulations=[spiccato(above)]
++(Note:artic) G5 (eighth note), articulations=[staccato(above)]
+@@ measure 51, staff 1, beat 5.0 @@
+-(Rest:pitch) eighth rest
++(Rest:pitch) eighth rest
+@@ measure 51, staff 1, beat 5.5 @@
++(Dynamic:offset) DY:p offset=2.25
+@@ measure 51, staff 1, beat 6.0 @@
+-(Dynamic:offset) DY:p offset=2.5
+@@ measure 51, staff 2, beat 4.0 @@
+-(Rest) quarter rest
+@@ measure 51, staff 2, beat 6.0 @@
+-(Rest:spacebefore) eighth rest, spacebefore=0.0
++(Rest:spacebefore) eighth rest, spacebefore=1.0
+@@ measure 52, staff 1, beat 4.0 @@
+-(Note:flagsbeams) B4 (16th note), 2 flags
++(Note:flagsbeams) B4 (eighth note), 1 flag
+@@ measure 52, staff 2, beat 1.0 @@
+-(Slur:placement) SLUR changedStyle={placement:above}
++(Slur:placement) SLUR changedStyle={placement:below}
+@@ measure 53, staff 1, beat 1.0 @@
+-(Note:flagsbeams) A4 (32nd note), 3 beams=[stop, stop, stop]
++(Note:flagsbeams) A4 (16th note), 2 beams=[stop, stop]
+@@ measure 53, staff 1, beat 1.0 @@
+-(Note:flagsbeams) G4 (32nd note), 3 beams=[start, start, start]
++(Note:flagsbeams) G4 (16th note), 2 beams=[start, start]
+@@ measure 53, staff 1, beat 1.0 @@
+-(SystemLayout) SB
+@@ measure 53, staff 1, beat 4.0 @@
+-(Slur) SLUR dur=1.5 numNotes=2
+@@ measure 53, staff 2, beat 1.0 @@
+-(Slur:placement) SLUR changedStyle={placement:above}
++(Slur:placement) SLUR changedStyle={placement:below}
+@@ measure 54, staff 1, beat 1.0 @@
+-(Note:flagsbeams) G4 (16th note), 2 flags
++(Note:flagsbeams) G4 (eighth note), 1 flag
+@@ measure 54, staff 1, beat 1.0 @@
+-(Slur:placement) SLUR changedStyle={placement:below}
++(Slur:placement) SLUR changedStyle={placement:above}
+@@ measure 60, staff 1, beat 0.5 @@
++(Dynamic) DY:sf
+@@ measure 60, staff 1, beat 3.0 @@
+-(Note:accid) A4 (eighth note)
++(Note:accid) A4 flat (eighth note)
+@@ measure 60, staff 2, beat 1.0 @@
+-(Dynamic) DY:sf
+@@ measure 61, staff 1, beat 0.5 @@
++(Dynamic) DY:sf
+@@ measure 61, staff 2, beat 0.5 @@
+-(Dynamic) DY:sf
+@@ measure 62, staff 1, beat 0.5 @@
++(Dynamic) DY:sf
+@@ measure 62, staff 1, beat 4.0 @@
+-(Note:artic) E4 (eighth note), articulations=[spiccato(above)]
++(Note:artic) E4 (eighth note), articulations=[staccato(above)]
+@@ measure 62, staff 1, beat 5.0 @@
+-(Note:pitch) [B3,D4] (eighth chord), pitch[1]=D4
+@@ measure 62, staff 1, beat 5.0 @@
++(Note:pitch) [D4,F4] (eighth chord), pitch[0]=D4
+@@ measure 62, staff 1, beat 5.0 @@
+-(Note:artic) F4 (eighth note), articulations=[spiccato(above)]
++(Chord:artic) [D4,F4] (eighth chord), articulations=[staccato(above)]
+@@ measure 62, staff 1, beat 6.0 @@
+-(Note:pitch) [B3,E4] (eighth chord), pitch[1]=E4
+@@ measure 62, staff 1, beat 6.0 @@
++(Note:pitch) [E4,G4] (eighth chord), pitch[0]=E4
+@@ measure 62, staff 1, beat 6.0 @@
+-(Note:artic) G4 (eighth note), articulations=[spiccato(above)]
++(Chord:artic) [E4,G4] (eighth chord), articulations=[staccato(above)]
+@@ measure 62, staff 2, beat 0.5 @@
+-(Dynamic) DY:sf
+@@ measure 62, staff 2, beat 4.0 @@
+-(Note:artic) G2 (eighth note), articulations=[staccato(below)]
++(Note:artic) G2 (eighth note), articulations=[]
+@@ measure 62, staff 2, beat 5.0 @@
+-(Note:artic) F2 (eighth note), articulations=[staccato(below)]
++(Note:artic) F2 (eighth note), articulations=[]
+@@ measure 62, staff 2, beat 6.0 @@
+-(Note:artic) E2 (eighth note), articulations=[staccato(below)]
++(Note:artic) E2 (eighth note), articulations=[]
+@@ measure 63, staff 1, beat 6.75 @@
++(Dynamic) DY:sf
+@@ measure 64, staff 1, beat 1.0 @@
+-(Dynamic) DY:sf
+@@ measure 65, staff 1, beat 0.5 @@
++(Dynamic:offset) DY:sf offset=-0.25
+@@ measure 65, staff 1, beat 0.5 @@
++(Dynamic:alignVertical) DY:sf changedStyle={alignVertical:middle}
+@@ measure 65, staff 1, beat 1.0 @@
+-(Dynamic:offset) DY:sf offset=0.0
+@@ measure 65, staff 1, beat 1.0 @@
+-(Dynamic:alignVertical) DY:sf changedStyle={}
+@@ measure 66, staff 1, beat 1.0 @@
+-(Slur) SLUR dur=1.5 numNotes=2
+@@ measure 66, staff 1, beat 1.0 @@
+-(Dynamic:alignVertical) DY:sf changedStyle={}
++(Dynamic:alignVertical) DY:sf changedStyle={alignVertical:middle}
+@@ measure 66, staff 1, beat 4.0 @@
+-(Note:artic) E5 (eighth note), articulations=[staccato(above)]
++(Note:artic) E5 (eighth note), articulations=[]
+@@ measure 66, staff 1, beat 5.0 @@
+-(Note:artic) F5 (eighth note), articulations=[staccato(above)]
++(Note:artic) F5 (eighth note), articulations=[]
+@@ measure 66, staff 1, beat 6.0 @@
+-(Note:artic) G5 (eighth note), articulations=[staccato(above)]
++(Note:artic) G5 (eighth note), articulations=[]
+@@ measure 66, staff 2, beat 4.0 @@
+-(Note:artic) G4 (eighth note), articulations=[spiccato(below)]
++(Note:artic) G4 (eighth note), articulations=[staccato(below)]
+@@ measure 66, staff 2, beat 5.0 @@
+-(Note:artic) F4 (eighth note), articulations=[spiccato(below)]
++(Note:artic) F4 (eighth note), articulations=[staccato(below)]
+@@ measure 66, staff 2, beat 6.0 @@
+-(Note:artic) E4 (eighth note), articulations=[spiccato(below)]
++(Note:artic) E4 (eighth note), articulations=[staccato(below)]
+@@ measure 67, staff 1, beat 4.0 @@
+-(Note:artic) E4 (eighth note), articulations=[staccato(above)]
++(Note:artic) E4 (eighth note), articulations=[]
+@@ measure 67, staff 1, beat 5.0 @@
+-(Note:artic) F4 (eighth note), articulations=[staccato(above)]
++(Note:artic) F4 (eighth note), articulations=[]
+@@ measure 67, staff 1, beat 6.0 @@
+-(Note:artic) G4 (eighth note), articulations=[staccato(above)]
++(Note:artic) G4 (eighth note), articulations=[]
+@@ measure 67, staff 2, beat 4.0 @@
+-(Note:pitch) F3 (eighth note)
++(Note:pitch) G3 (eighth note)
+@@ measure 67, staff 2, beat 5.0 @@
+-(Note:pitch) E3 (eighth note)
++(Note:pitch) F3 (eighth note)
+@@ measure 67, staff 2, beat 6.0 @@
+-(Note:pitch) D3 (eighth note)
++(Note:pitch) E3 (eighth note)
+@@ measure 68, staff 1, beat 1.0 @@
+-(Note) D4 (dotted quarter note), stemDirection=down
+@@ measure 68, staff 1, beat 1.0 @@
++(Note:pitch) [D4,F4] (dotted quarter chord), pitch[0]=D4
+@@ measure 68, staff 1, beat 4.0 @@
+-(Note:spacebefore) B4 (eighth note), spacebefore=0.0
++(Note:spacebefore) B4 (eighth note), spacebefore=1.5
+@@ measure 68, staff 1, beat 4.0 @@
+-(Note:artic) E5 (eighth note), articulations=[staccato(above)]
++(Note:artic) E5 (eighth note), articulations=[]
+@@ measure 68, staff 1, beat 5.0 @@
+-(Note:artic) F5 (eighth note), articulations=[staccato(above)]
++(Note:artic) F5 (eighth note), articulations=[]
+@@ measure 68, staff 1, beat 6.0 @@
+-(Note:artic) G5 (eighth note), articulations=[staccato(above)]
++(Note:artic) G5 (eighth note), articulations=[]
+@@ measure 68, staff 2, beat 4.0 @@
+-(Note:artic) G4 (eighth note), articulations=[spiccato(below)]
++(Note:artic) G4 (eighth note), articulations=[staccato(below)]
+@@ measure 68, staff 2, beat 5.0 @@
+-(Note:artic) F4 (eighth note), articulations=[spiccato(below)]
++(Note:artic) F4 (eighth note), articulations=[staccato(below)]
+@@ measure 68, staff 2, beat 6.0 @@
+-(Note:artic) E4 (eighth note), articulations=[spiccato(below)]
++(Note:artic) E4 (eighth note), articulations=[staccato(below)]
+@@ measure 69, staff 1, beat 4.0 @@
+-(Note:artic) E5 (eighth note), articulations=[staccato(above)]
++(Note:artic) E5 (eighth note), articulations=[]
+@@ measure 69, staff 1, beat 5.0 @@
+-(Note:artic) F5 (eighth note), articulations=[staccato(above)]
++(Note:artic) F5 (eighth note), articulations=[]
+@@ measure 69, staff 1, beat 6.0 @@
+-(Note:artic) G5 (eighth note), articulations=[staccato(above)]
++(Note:artic) G5 (eighth note), articulations=[]
+@@ measure 69, staff 2, beat 4.0 @@
+-(Note:artic) G4 (eighth note), articulations=[spiccato(below)]
++(Note:artic) G4 (eighth note), articulations=[staccato(below)]
+@@ measure 69, staff 2, beat 5.0 @@
+-(Note:artic) F4 (eighth note), articulations=[spiccato(below)]
++(Note:artic) F4 (eighth note), articulations=[staccato(below)]
+@@ measure 69, staff 2, beat 6.0 @@
+-(Note:artic) E4 (eighth note), articulations=[spiccato(below)]
++(Note:artic) E4 (eighth note), articulations=[staccato(below)]
+@@ measure 71, staff 1, beat 1.0 @@
+-(Dynamic:alignVertical) DY:cres: changedStyle={}
++(Dynamic:alignVertical) DY:cres: changedStyle={alignVertical:middle}
+@@ measure 72, staff 1, beat 4.0 @@
+-(Note:artic) B4 (eighth note), articulations=[spiccato(above)]
++(Note:artic) B4 (eighth note), articulations=[staccato(above)]
+@@ measure 72, staff 2, beat 1.0 @@
++(TrebleClef) CL:G2
+@@ measure 72, staff 2, beat 2.0 @@
+-(Rest:pitch) eighth rest
++(Rest:pitch) eighth rest
+@@ measure 72, staff 2, beat 3.0 @@
+-(Rest:pitch) eighth rest
++(Rest:pitch) eighth rest
+@@ measure 73, staff 1, beat 1.0 @@
+-(Note:artic) B4 (eighth note), articulations=[spiccato(above)]
++(Note:artic) B4 (eighth note), articulations=[]
+@@ measure 73, staff 1, beat 2.0 @@
+-(Rest) eighth rest
+@@ measure 73, staff 1, beat 5.0 @@
+-(Rest:flagsbeams) eighth rest, 1 flag
++(Rest:flagsbeams) quarter rest, no flags/beams
+@@ measure 73, staff 2, beat 4.0 @@
+-(Note:artic) B2 (eighth note), articulations=[]
++(Note:artic) B2 (eighth note), articulations=[staccato(below)]
+@@ measure 74, staff 1, beat 3.0 @@
++(Dynamic) DY:cres
+@@ measure 74, staff 1, beat 3.0 @@
+-(Dynamic) DY:cres:
+@@ measure 74, staff 1, beat 4.0 @@
+-(Note:artic) B4 (eighth note), articulations=[staccato(above)]
++(Note:artic) B4 (eighth note), articulations=[]
+@@ measure 75, staff 1, beat 3 99/100 @@
++(Dynamic) DY:sf
+@@ measure 75, staff 1, beat 5.0 @@
+-(Dynamic) DY:sfp
+@@ measure 75, staff 1, beat 6.0 @@
+-(Note:artic) E5 (eighth note), articulations=[spiccato(above)]
++(Note:artic) E5 (eighth note), articulations=[staccato(above)]
+@@ measure 75, staff 1, beat 6.0 @@
++(Dynamic) DY:p
+@@ measure 76, staff 1, beat 1.0 @@
+-(TextExpression:content) TX:dol.
++(TextExpression:content) TX:dol:
+@@ measure 76, staff 1, beat 1.0 @@
+-(Slur:placement) SLUR changedStyle={placement:above}
++(Slur:placement) SLUR changedStyle={placement:below}
+@@ measure 76, staff 1, beat 4.0 @@
+-(Note:flagsbeams) B4 (16th note), 2 flags
++(Note:flagsbeams) B4 (eighth note), 1 flag
+@@ measure 76, staff 1, beat 4.0 @@
+-(Slur) SLUR dur=1.5 numNotes=2
+@@ measure 77, staff 1, beat 1.0 @@
+-(Note:flagsbeams) A4 (32nd note), 3 beams=[stop, stop, stop]
++(Note:flagsbeams) A4 (16th note), 2 beams=[stop, stop]
+@@ measure 77, staff 1, beat 1.0 @@
+-(Note:flagsbeams) G4 (32nd note), 3 beams=[start, start, start]
++(Note:flagsbeams) G4 (16th note), 2 beams=[start, start]
+@@ measure 78, staff 1, beat 1.0 @@
+-(Note:flagsbeams) G4 (16th note), 2 flags
++(Note:flagsbeams) G4 (eighth note), 1 flag
+@@ measure 78, staff 1, beat 1.0 @@
+-(Slur:dur) SLUR dur=2.5
++(Slur:dur) SLUR dur=3.0
+@@ measure 79, staff 1, beat 1.0 @@
+-(Note:tuplet) F4 (16th triplet (1/6 ql) note), tuplets=[start(3B)]
++(Note:tuplet) F4 (16th triplet (1/6 ql) note), tuplets=[start(3)]
+@@ measure 79, staff 1, beat 2.0 @@
+-(Note:tuplet) E4 (16th triplet (1/6 ql) note), tuplets=[start(3B)]
++(Note:tuplet) E4 (16th triplet (1/6 ql) note), tuplets=[start(3)]
+@@ measure 79, staff 1, beat 3.0 @@
+-(Note:tuplet) A4 flat (16th triplet (1/6 ql) note), tuplets=[start(3B)]
++(Note:tuplet) A4 flat (16th triplet (1/6 ql) note), tuplets=[start(3)]
+@@ measure 79, staff 1, beat 4.0 @@
+-(Note:tuplet) D5 (16th triplet (1/6 ql) note), tuplets=[start(3B)]
++(Note:tuplet) D5 (16th triplet (1/6 ql) note), tuplets=[start(3)]
+@@ measure 80, staff 1, beat 2.0 @@
+-(Note:tuplet) G4 (16th triplet (1/6 ql) note), tuplets=[start(3)]
++(Note:tuplet) G4 (16th triplet (1/6 ql) note), tuplets=[start]
+@@ measure 81, staff 1, beat 1.0 @@
+-(Note:tuplet) C5 (16th triplet (1/6 ql) note), tuplets=[start(3B)]
++(Note:tuplet) C5 (16th triplet (1/6 ql) note), tuplets=[start(3)]
+@@ measure 81, staff 1, beat 1.0 @@
+-(Note:stemdir) C5 (16th triplet (1/6 ql) note), stemDirection=up
++(Note:stemdir) C5 (16th triplet (1/6 ql) note), stemDirection=down
+@@ measure 81, staff 1, beat 1 1/3 @@
+-(Note:stemdir) B4 (16th triplet (1/6 ql) note), stemDirection=up
++(Note:stemdir) B4 (16th triplet (1/6 ql) note), stemDirection=down
+@@ measure 81, staff 1, beat 1 2/3 @@
+-(Note:stemdir) A4 natural (16th triplet (1/6 ql) note), stemDirection=up
++(Note:stemdir) A4 natural (16th triplet (1/6 ql) note), stemDirection=down
+@@ measure 81, staff 1, beat 4.0 @@
+-(Note:accid) A5 (32nd note)
++(Note:accid) A5 flat (32nd note)
+@@ measure 83, staff 1, beat 4.0 @@
+-(Dynamic) DY:p
+@@ measure 84, staff 1, beat 4.0 @@
+-(Note:accid) A4 (16th note)
++(Note:accid) A4 natural (16th note)
+@@ measure 85, staff 1, beat 5.5 @@
+-(Note:accid) B4 (16th note)
++(Note:accid) B4 flat (16th note)
+@@ measure 87, staff 1, beat 3.0 @@
++(Rest) eighth rest
+@@ measure 87, staff 1, beat 4.0 @@
++(Rest) quarter rest
+@@ measure 88, staff 1, beat 3.0 @@
+-(Note:artic) A5 (eighth note), articulations=[spiccato(above)]
++(Note:artic) A5 (eighth note), articulations=[staccato(above)]
+@@ measure 89, staff 1, beat 3.0 @@
+-(Note:artic) G5 (eighth note), articulations=[spiccato(above)]
++(Note:artic) G5 (eighth note), articulations=[staccato(above)]
+@@ measure 90, staff 1, beat 1.5 @@
+-(Slur) SLUR dur=0.75 numNotes=2
+@@ measure 90, staff 2, beat 6.0 @@
+-(Note) D3 (eighth note), stemDirection=up, spacebefore=1.0
+@@ measure 90, staff 2, beat 6.0 @@
++(Note) D3 (eighth note), stemDirection=up
+@@ measure 92, staff 2, beat 2.0 @@
+-(Note:pitch) [A3,C4,F4] (eighth chord), pitch[1]=C4
+@@ measure 93, staff 2, beat 2.0 @@
+-(Chord:artic) [E4,G4] (eighth chord), articulations=[staccato(below)]
++(Chord:artic) [E4,G4] (eighth chord), articulations=[]
+@@ measure 94, staff 2, beat 2.0 @@
+-(Chord:stemdir) [A2,C3,F3] (eighth chord), stemDirection=up
++(Chord:stemdir) [A2,C3,F3] (eighth chord), stemDirection=down
+@@ measure 95, staff 1, beat 4.0 @@
+-(Dynamic) DY:f
+@@ measure 95, staff 1, beat 5.0 @@
+-(Chord:artic) [B4,B5] (eighth chord), articulations=[spiccato(above)]
++(Chord:artic) [B4,B5] (eighth chord), articulations=[staccato(above)]
+@@ measure 95, staff 1, beat 6.0 @@
+-(Chord:artic) [D5,A5,D6] (eighth chord), articulations=[spiccato(above)]
++(Chord:artic) [D5,A5,D6] (eighth chord), articulations=[staccato(above)]
+@@ measure 95, staff 2, beat 3.0 @@
+-(Dynamic) DY:cres:
+@@ measure 96, staff 1, beat 1.0 @@
+-(Chord:artic) [E5,G5,E6] (eighth chord), articulations=[spiccato(above)]
++(Chord:artic) [E5,G5,E6] (eighth chord), articulations=[staccato(above)]
+@@ measure 96, staff 1, beat 4.0 @@
+-(Barline) BL:final
+@@ measure 96, staff 2, beat 1.0 @@
+-(Chord:artic) [E2,E3] (eighth chord), articulations=[spiccato(above)]
++(Chord:artic) [E2,E3] (eighth chord), articulations=[]
+@@ measure 96, staff 2, beat 1.0 @@
+-(Chord:stemdir) [E2,E3] (eighth chord), stemDirection=down
++(Chord:stemdir) [E2,E3] (eighth chord), stemDirection=up
+@@ measure 96, staff 2, beat 4.0 @@
+-(Barline) BL:final

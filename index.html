@@ -1,101 +1,62 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8"/>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <style>
-        body {
-            font-family: Verdana, sans-serif;
-            background: #ffffff;
-        }
-
-        .header {
-
-            margin: 1.5em auto;
-            text-align: center;
-            display: flex;
-            flex-direction: row;
-            justify-content: center;
-            align-content: center;
-        }
-
-        h1 {
-            color: #0F5FA6;
-            font-weight: bolder;
-            font-size: 2em;
-            margin-left: 0.3em;
-        }
-
-        .load {
-            padding: 1em 3em;
-            border: 1px solid #ccc;
-            background: #efefef;
-        }
-
-        #network, #axis {
-            border: 1px solid #ccc;
-            margin: 10px 0;
-        }
-
-        #beatLabel {
-            margin-left: 10px;
-        }
-
-        .tooltip {
-            position: absolute;
-            pointer-events: none;
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid #999999;
-            padding: 6px;
-            font-size: 12px;
-            border-radius: 4px;
-            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
-            max-width: 300px;
-            white-space: pre-wrap;
-        }
-
-        #network {
-            width: 100% !important;
-            background: #efefef;
-
-        }
-
-        #axis {
-            width: 100% !important;
-            background: #efefef;
-        }
-
-        .legend text {
-            font-size: 12px;
-            alignment-baseline: middle;
-        }
-    </style>
+    <title>Multiple MusicDiff Visualiser</title>
+    <link rel="stylesheet" href="/src/style.css">
 </head>
 <body>
-<div class="header">
-    <img src="logo.svg" width="50"/>
-    <h1>Multiple MusicDiff Visualiser</h1></div>
-<div class="load">Select multiple musicdiff-files: <input type="file" id="diffFiles" multiple accept=".txt"/>
-    <button id="loadBtn">Load</button>
-    <button id="example">Example</button>
-    <label>
-        <input type="checkbox" id="weightToggle" />
-        Use dynamic weights
-    </label>
+<div class="app-container">
+    <aside class="sidebar">
+        <header class="sidebar-header">
+            <h1>MusicDiff</h1>
+            <p>Multiple Edition Visualiser</p>
+        </header>
+        <section class="control-group">
+            <h2>1. Daten laden</h2>
+            <input type="file" id="diffFiles" multiple accept=".txt"/>
+            <button id="loadBtn">Laden</button>
+            <button id="exampleBtn">Beispiel laden</button>
+        </section>
+        <section class="control-group">
+            <h2>2. Ansicht steuern</h2>
+            <div class="vis-options">
+                <label><input type="radio" name="visType" value="network" checked> Netzwerk</label>
+                <label><input type="radio" name="visType" value="tree"> Baum</label>
+            </div>
+        </section>
+        <section class="control-group">
+            <h2>3. Analyse</h2>
+            <div class="analysis-options">
+                <button id="totalTreeBtn">Gesamt-Baum</button>
+                <button id="totalNetworkBtn">Gesamt-Netzwerk</button>
+                <button id="resetViewBtn">Live-Ansicht</button>
+            </div>
+        </section>
+        <section class="control-group" id="legends">
+            <h2>Legende</h2>
+            <div id="axis-legend"></div>
+        </section>
+    </aside>
+    <main class="main-content">
+        <div class="vis-wrapper">
+            <svg id="network" class="vis-container"></svg>
+            <svg id="tree" class="vis-container" style="display: none;"></svg>
+        </div>
+        <div id="axis-wrapper">
+            <svg id="axis"></svg>
+        </div>
+        <p class="axis-note"><small>Auf die Achse klicken, um die Auswahl per Maus zu aktivieren.</small></p>
+        <div class="slider-container">
+            <input type="range" id="beatSlider" min="0" max="1" step="1" disabled/>
+            <span id="beatLabel"></span>
+        </div>
+    </main>
 </div>
-
-<svg id="network" width="1200" height="400"></svg>
-<span id="beatLabel">Measure: –, Beat: –</span>
-<svg id="axis" width="1200" height="1000"></svg>
-<p><small>Click on the axis to enable selection</small></p>
-<br/>
-<input type="range" id="beatSlider" min="0" max="1" step="1" disabled style="visibility: hidden;"/>
-
-
-<div id="tooltip" class="tooltip" style="display: none;"></div>
-<script src="javascript/main.js">
-</script>
-
-
+<div id="tooltip" class="tooltip" style="opacity: 0; pointer-events: none;"></div>
+<div id="loader" class="loader-overlay" style="display: none;">
+    <div class="spinner"></div>
+</div>
+<script type="module" src="/src/main.js"></script>
 </body>
 </html>

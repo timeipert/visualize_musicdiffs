@@ -1,0 +1,32 @@
+{
+  "name": "difference",
+  "version": "1.0.0",
+  "description": "You can create the diff-files from multiple MEI-Files with the following colab: [Google Colab Multiple MusicDiffs](https://colab.research.google.com/drive/1kpsOZ8GVcP6McCZPzv_YYDY9LeAWdqPU?usp=sharing) Then you can use the diff files [here](https://timeipert.github.io/visualize_musicdiffs/)",
+  "main": "index.js",
+  "directories": {
+    "example": "example"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/timeipert/visualize_musicdiffs.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/timeipert/visualize_musicdiffs/issues"
+  },
+  "homepage": "https://github.com/timeipert/visualize_musicdiffs#readme",
+  "devDependencies": {
+    "vite": "^7.1.4"
+  },
+  "dependencies": {
+    "d3": "^7.9.0",
+    "neighbor-joining": "^1.0.4"
+  }
+}
