@@ -4,7 +4,14 @@ const PRESET_DIFFS = [ "1803_BdA_ED_Op33_1.mei_1808_Zulehner_Op33_1.mei.txt", "1
 
 async function fetchData(config) {
     if (config.useExample) {
-        const promises = PRESET_DIFFS.map(name => fetch(`/example/diffs/${name}`).then(res => res.ok ? res.text() : Promise.reject(new Error(`Datei nicht gefunden: ${name}`))));
+        // KORREKTUR: Der Pfad wird jetzt dynamisch mit der von Vite bereitgestellten Basis-URL erstellt.
+        const promises = PRESET_DIFFS.map(name => {
+            const path = `${import.meta.env.BASE_URL}example/diffs/${name}`;
+            return fetch(path).then(res => {
+                if (!res.ok) throw new Error(`Datei nicht gefunden: ${path}`);
+                return res.text();
+            });
+        });
         return Promise.all(promises);
     } else {
         return Promise.all([...config.files].map(file => file.text()));
@@ -15,7 +22,6 @@ function parseAndProcess(rawDiffs) {
     let beatInfo = {};
     let nodesMap = {};
     let edges = [];
-
     rawDiffs.forEach(text => {
         const lines = text.split("\n");
         const a = lines[0].replace(/--- (.*\/)?/, "").replace(".mei", ""), b = lines[1].replace(/\+\+\+ (.*\/)?/, "").replace(".mei", "");
@@ -68,7 +74,6 @@ function parseAndProcess(rawDiffs) {
         });
     }
 
-    // KORREKTUR: Filtere die Keys, um sicherzustellen, dass jeder Key einem validen Objekt zugeordnet ist.
     let allBeatKeys = Object.keys(beatInfo).filter(key => beatInfo[key] && typeof beatInfo[key].measure !== 'undefined');
 
     allBeatKeys.sort((a, b) => {
