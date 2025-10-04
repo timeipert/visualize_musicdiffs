@@ -4,7 +4,6 @@ const PRESET_DIFFS = [ "1803_BdA_ED_Op33_1.mei_1808_Zulehner_Op33_1.mei.txt", "1
 
 async function fetchData(config) {
     if (config.useExample) {
-        // KORREKTUR: Der Pfad wird jetzt dynamisch mit der von Vite bereitgestellten Basis-URL erstellt.
         const promises = PRESET_DIFFS.map(name => {
             const path = `${import.meta.env.BASE_URL}example/diffs/${name}`;
             return fetch(path).then(res => {

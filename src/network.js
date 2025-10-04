@@ -1,17 +1,17 @@
 import * as d3 from 'd3';
 
-let simulation, link, node, width, height;
+let simulation, link, node;
 
 export function initNetwork(svg, nodes, linkData, nodeColor) {
-    width = svg.node().getBoundingClientRect().width;
-    height = svg.node().getBoundingClientRect().height;
+    const width = svg.node().getBoundingClientRect().width;
+    const height = svg.node().getBoundingClientRect().height;
 
     svg.selectAll("*").remove();
 
     simulation = d3.forceSimulation(nodes)
-        .force("link", d3.forceLink(linkData).id(d => d.id))
-        .force("x", d3.forceX(width / 2).strength(0.1))
-        .force("y", d3.forceY(height / 2).strength(0.1));
+        .force("link", d3.forceLink(linkData).id(d => d.id).distance(100).strength(1))
+        .force("charge", d3.forceManyBody().strength(-600))
+        .force("center", d3.forceCenter(width / 2, height / 2));
 
     link = svg.append("g")
         .attr("stroke", "#999")
@@ -21,7 +21,6 @@ export function initNetwork(svg, nodes, linkData, nodeColor) {
         .join("line")
         .attr("stroke-width", 1.5);
 
-    // KORREKTUR: Der weiße Rand wird nur dem Kreis zugewiesen, nicht der ganzen Gruppe
     node = svg.append("g")
         .selectAll("g")
         .data(nodes)
@@ -36,11 +35,13 @@ export function initNetwork(svg, nodes, linkData, nodeColor) {
     node.append("text")
         .text(d => d.id)
         .attr("x", 12)
-        .attr("y", 3)
+        .attr("y", 4)
+        .attr("font-size", "2em")
         .attr("class", "node-label");
 
     simulation.on("tick", () => {
-        link.attr("x1", d => d.source.x)
+        link
+            .attr("x1", d => d.source.x)
             .attr("y1", d => d.source.y)
             .attr("x2", d => d.target.x)
             .attr("y2", d => d.target.y);

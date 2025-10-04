@@ -4,6 +4,7 @@ import { loadAndProcessData } from './data.js';
 import { initAxisChart, updateAxisIndicator } from './axisChart.js';
 import { initNetwork, updateNetwork } from './network.js';
 import { initTree, updateTree, drawTotalTree } from './tree.js';
+import { exportSvg, exportPng } from './export.js';
 
 const App = {
     state: {},
@@ -17,6 +18,7 @@ function main() {
         netSvg: d3.select("#network"),
         treeSvg: d3.select("#tree"),
         axSvg: d3.select("#axis"),
+        axisLabelContainer: d3.select("#axis-labels"),
         beatSlider: document.getElementById("beatSlider"),
         beatLabel: document.getElementById("beatLabel"),
         tooltip: d3.select("#tooltip"),
@@ -30,11 +32,11 @@ function main() {
             totalTreeBtn: document.getElementById("totalTreeBtn"),
             totalNetworkBtn: document.getElementById("totalNetworkBtn"),
             resetViewBtn: document.getElementById("resetViewBtn"),
-            beatLabel: App.elements.beatLabel,
         },
         () => handleFileUpload(App.elements.fileInput.files),
         handleExampleLoad,
-        handleAnalysis
+        handleAnalysis,
+        handleExport
     );
 
     App.elements.beatSlider.oninput = () => {
@@ -54,7 +56,6 @@ async function handleFileUpload(files) {
         initializeAppWithData();
     } catch (error) {
         console.error("Fehler beim Verarbeiten der Dateien:", error);
-        alert("Fehler beim Verarbeiten der Dateien.");
     } finally {
         hideLoader();
     }
@@ -67,7 +68,6 @@ async function handleExampleLoad() {
         initializeAppWithData();
     } catch (error) {
         console.error("Fehler beim Laden der Beispieldaten:", error);
-        alert("Fehler beim Laden der Beispieldaten.");
     } finally {
         hideLoader();
     }
@@ -75,12 +75,11 @@ async function handleExampleLoad() {
 
 function initializeAppWithData() {
     const { nodes, linkData, beatInfo, allBeatKeys, globalMax, nodeColor, axisColor, taxa } = App.state;
-    const { netSvg, treeSvg, axSvg, beatSlider, tooltip } = App.elements;
+    const { netSvg, treeSvg, axSvg, axisLabelContainer, beatSlider, tooltip } = App.elements;
 
-    createLegends(nodeColor, axisColor);
+    createLegends(axisColor);
 
-    // Die Achse wird jetzt wieder einmalig initialisiert.
-    const beatX = initAxisChart(axSvg, tooltip, linkData, allBeatKeys, beatInfo, globalMax, axisColor, setCurrentBeat);
+    const beatX = initAxisChart(axSvg, axisLabelContainer, tooltip, linkData, allBeatKeys, beatInfo, globalMax, axisColor, nodeColor, setCurrentBeat);
     App.state.beatX = beatX;
 
     initNetwork(netSvg, nodes, linkData, nodeColor);
@@ -98,13 +97,11 @@ function initializeAppWithData() {
 
 function setCurrentBeat(idx) {
     if (!App.state.allBeatKeys || App.state.allBeatKeys.length === 0) return;
-
     const { allBeatKeys, beatInfo, beatX, linkData, globalMax, taxa } = App.state;
     const { netSvg, treeSvg, beatSlider } = App.elements;
-
     idx = Math.max(0, Math.min(allBeatKeys.length - 1, +idx));
 
-    updateStatusLabel(`Live-Ansicht | Takt: ${beatInfo[allBeatKeys[idx]].measure}, Beat: ${beatInfo[allBeatKeys[idx]].beat.toFixed(2)}`);
+    updateStatusLabel(`Live-View | Measure: ${beatInfo[allBeatKeys[idx]].measure}, Beat: ${beatInfo[allBeatKeys[idx]].beat.toFixed(2)}`);
     updateAxisIndicator(idx, beatX);
     beatSlider.value = idx;
 
@@ -124,15 +121,15 @@ function handleAnalysis(type) {
     const { netSvg, treeSvg, beatSlider } = App.elements;
     App.state.isLiveView = false;
     beatSlider.disabled = true;
-    updateAxisIndicator(null, null); // Indikator ausblenden
+    updateAxisIndicator(null, null);
 
     if (type === 'total-network') {
-        updateStatusLabel("Gesamt-Ansicht (Netzwerk)");
+        updateStatusLabel("Total View (Network)");
         netSvg.style("display", "block");
         treeSvg.style("display", "none");
         updateNetwork(null, App.state.linkData, App.state.globalMax, true);
     } else if (type === 'total-tree') {
-        updateStatusLabel("Gesamt-Ansicht (Baum)");
+        updateStatusLabel("Total View (Tree)");
         netSvg.style("display", "none");
         treeSvg.style("display", "block");
         drawTotalTree(App.state.linkData, App.state.taxa);
@@ -140,5 +137,17 @@ function handleAnalysis(type) {
         App.state.isLiveView = true;
         beatSlider.disabled = false;
         setCurrentBeat(beatSlider.value);
+    }
+}
+function handleExport(type) {
+    const now = new Date();
+    const timestamp = `${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2,'0')}-${now.getDate().toString().padStart(2,'0')}`;
+
+    if (type === 'network') {
+        exportSvg(App.elements.netSvg.node(), `network-${timestamp}.svg`);
+    } else if (type === 'tree') {
+        exportSvg(App.elements.treeSvg.node(), `tree-${timestamp}.svg`);
+    } else if (type === 'axis') {
+        exportPng(App.elements.axSvg.node(), `axis-${timestamp}.png`);
     }
 }

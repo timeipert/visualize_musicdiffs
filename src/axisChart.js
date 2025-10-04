@@ -2,27 +2,39 @@ import * as d3 from 'd3';
 
 let indicator;
 
-/**
- * Initialisiert die Achsen-Visualisierung und zeichnet sie.
- * @returns {Array} Das Array mit den berechneten x-Positionen für jeden Beat.
- */
-export function initAxisChart(axSvg, tooltip, linkData, allBeatKeys, beatInfo, globalMax, axisColor, setCurrentBeat) {
+export function initAxisChart(axSvg, axisLabelContainer, tooltip, linkData, allBeatKeys, beatInfo, globalMax, axisColor, nodeColor, setCurrentBeat) {
     axSvg.selectAll("*").remove();
+    axisLabelContainer.selectAll("*").remove();
 
     if (!allBeatKeys || allBeatKeys.length === 0 || !linkData || linkData.length === 0) {
-        axSvg.append("text").attr("x", 20).attr("y", 20).text("Keine Daten zum Anzeigen.").attr("fill", "#999");
+        axSvg.append("text").attr("x", 20).attr("y", 20).text("No Data.").attr("fill", "#999");
         return [];
     }
 
+    const panelHeight = 25;
+    const totalHeight = linkData.length * panelHeight;
+
+    axisLabelContainer.style("height", `${totalHeight}px`);
+    axisLabelContainer.selectAll("div").data(linkData).join("div")
+        .attr("class", "axis-panel-label")
+        .style("height", `${panelHeight}px`)
+        .html(d => `
+            <div class="color-swatch-container">
+                <div class="color-swatch" style="background-color:${nodeColor(d.source)}"></div>
+                <div class="color-swatch" style="background-color:${nodeColor(d.target)}"></div>
+            </div>
+            <span>${d.source} vs ${d.target}</span>
+        `);
+
     const containerWidth = axSvg.node().parentElement.getBoundingClientRect().width;
-    const marginLeft = 150, marginRight = 40;
+    const marginLeft = 40;
+    const minMeasureWidth = 100;
     const distinctMeasures = [...new Set(Object.values(beatInfo).map(info => info.measure))].sort((a,b)=>a-b);
 
-    // Die Breite wird jetzt auf Basis einer minimalen Breite pro Takt berechnet, um genug Platz zu schaffen.
-    const axisWidth = Math.max(containerWidth, distinctMeasures.length * 100); // 100px pro Takt
-    axSvg.attr("width", axisWidth);
+    const axisWidth = Math.max(containerWidth, distinctMeasures.length * minMeasureWidth);
+    axSvg.attr("width", axisWidth).attr("height", totalHeight);
 
-    const innerWidth = axisWidth - marginLeft - marginRight;
+    const innerWidth = axisWidth - marginLeft;
     const measureWidth = innerWidth / distinctMeasures.length;
 
     const beatsByMeasure = {};
@@ -50,35 +62,28 @@ export function initAxisChart(axSvg, tooltip, linkData, allBeatKeys, beatInfo, g
     const beatX = Array(allBeatKeys.length);
     beatPositions.forEach(pos => { beatX[pos.idx] = pos.x; });
 
-    const panelHeight = Math.max(20, 200 / linkData.length);
-    const totalHeight = linkData.length * panelHeight;
-    axSvg.attr("height", totalHeight);
-
-    indicator = axSvg.append("line")
-        .attr("stroke", "blue").attr("stroke-width", 1.5).attr("opacity", 0.7)
-        .style("pointer-events", "none").attr("y1", 0).attr("y2", totalHeight);
+    indicator = axSvg.append("line").attr("stroke", "blue").attr("stroke-width", 1.5).attr("opacity", 0.7).style("pointer-events", "none").attr("y1", 0).attr("y2", totalHeight);
 
     linkData.forEach((d, i) => {
         const panelGroup = axSvg.append("g").attr("transform", `translate(0, ${i * panelHeight})`);
-        const yScale = d3.scaleLinear().domain([0, globalMax]).range([panelHeight, 0]);
+        const yScale = d3.scaleLinear().domain([0, globalMax]).range([panelHeight - 2, 2]);
         panelGroup.selectAll("rect").data(d3.range(allBeatKeys.length)).join("rect")
             .attr("x", keyIdx => beatX[keyIdx] ? beatX[keyIdx] - 2 : -10)
             .attr("y", keyIdx => yScale(d.beatCounts[keyIdx] || 0))
-            .attr("width", 4).attr("height", keyIdx => panelHeight - yScale(d.beatCounts[keyIdx] || 0))
-            .attr("fill", keyIdx => (d.beatCounts[keyIdx] || 0) > 0 ? axisColor(d.beatCounts[keyIdx]) : "#eee")
+            .attr("width", 4).attr("height", keyIdx => (panelHeight - 2) - yScale(d.beatCounts[keyIdx] || 0))
+            .attr("fill", keyIdx => (d.beatCounts[keyIdx] || 0) > 0 ? axisColor(d.beatCounts[keyIdx]) : "transparent")
             .on("mouseover", (event, keyIdx) => {
                 const details = d.beatDetails[keyIdx];
-                if (!details || details.length === 0) return;
-                tooltip.style("opacity", 1).html(`<strong>Details (${details.length}):</strong><br>${details.join('<br>')}`);
+                const info = beatInfo[allBeatKeys[keyIdx]];
+                if (!info || (d.beatCounts[keyIdx] || 0) === 0) return;
+                const tooltipContent = `<strong>${d.source} vs ${d.target}</strong><br>Takt: ${info.measure}, Beat: ${info.beat.toFixed(2)}<br>Differences: ${d.beatCounts[keyIdx]}<br><hr>${details ? details.join('<br>') : 'No Details'}`;
+                tooltip.style("opacity", 1).html(tooltipContent);
             })
-            .on("mousemove", (event) => {
-                tooltip.style("left", (event.pageX + 15) + "px").style("top", (event.pageY - 28) + "px");
-            })
-            .on("mouseleave", () => { tooltip.style("opacity", 0); });
-        panelGroup.append("g").attr("transform", `translate(${marginLeft}, 0)`).call(d3.axisLeft(yScale).ticks(3));
-        panelGroup.append("text").attr("x", marginLeft - 8).attr("y", panelHeight / 2).attr("text-anchor", "end").style("font-size", "10px").text(d.id.replace("__", " vs "));
+            .on("mousemove", (event) => tooltip.style("left", (event.pageX + 15) + "px").style("top", (event.pageY - 28) + "px"))
+            .on("mouseleave", () => tooltip.style("opacity", 0));
     });
 
+    let isSelection = false;
     const bisect = d3.bisector(d => d.x).left;
     function findNearestIdx(mouseX) {
         if (!beatPositions || beatPositions.length === 0) return 0;
@@ -89,8 +94,6 @@ export function initAxisChart(axSvg, tooltip, linkData, allBeatKeys, beatInfo, g
         const d1 = beatPositions[i].x - mouseX;
         return d0 < d1 ? beatPositions[i - 1].idx : beatPositions[i].idx;
     }
-
-    let isSelection = false;
     axSvg.on("click", (event) => {
         isSelection = !isSelection;
         if (isSelection) setCurrentBeat(findNearestIdx(d3.pointer(event)[0]));
@@ -101,9 +104,6 @@ export function initAxisChart(axSvg, tooltip, linkData, allBeatKeys, beatInfo, g
     return beatX;
 }
 
-/**
- * Aktualisiert die Position des Indikator-Strichs.
- */
 export function updateAxisIndicator(idx, beatX) {
     if (indicator && beatX && typeof beatX[idx] !== 'undefined') {
         indicator.style("display", "block").attr("x1", beatX[idx]).attr("x2", beatX[idx]);
