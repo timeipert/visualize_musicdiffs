@@ -39,6 +39,11 @@ You can create the diff-files from multiple MEI-Files with the following colab:
 [Google Colab Multiple MusicDiffs](https://colab.research.google.com/drive/1kpsOZ8GVcP6McCZPzv_YYDY9LeAWdqPU?usp=sharing)
 Then you can find our app [here](https://timeipert.github.io/visualize_musicdiffs/).
 
+
+Presented at Third International Conference on Computational and Cognitive Musicology
+in Aalborg University, Denmark, 
+8-10 October 2025. Poster: 
+# Develop
 If you want to deploy it yourself, you can clone the repository, 
 then you should install dependencies with
 ```
@@ -49,4 +54,4 @@ and then can start the app with
 npm run dev
 ```
 ## Other Links
-You can also find this project on [OSF]((https://osf.io/czmw8/).
+You can also find this project on [OSF](https://osf.io/czmw8/).
