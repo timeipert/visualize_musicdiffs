@@ -15,10 +15,19 @@ export function initTree(svg, initialTaxa, colorScale) {
     };
 
     const zoom = d3.zoom()
-        .scaleExtent([0.1, 8])
+        .scaleExtent([0.1, 4])
         .on("zoom", zoomed);
 
-    svg.call(zoom);
+    const { width, height } = svg.node().getBoundingClientRect();
+    const initialScale = 0.5;
+    const initialTransform = d3.zoomIdentity
+        .translate((width * (1 - initialScale)+20) , (height * (1 - initialScale)+60) )
+        .scale(initialScale);
+
+    svg.call(zoom)
+        .call(zoom.transform, initialTransform);
+
+    treeG.attr("transform", initialTransform);
 }
 
 function computeNJ(distMatrix) {
@@ -67,7 +76,7 @@ function drawTree(treeObj) {
     const maxBranchLength = d3.max(links, d => d.length);
     const lengthScale = d3.scaleLinear()
         .domain([0, maxBranchLength])
-        .range([10, 100]);
+        .range([5, 40]);
 
     const simulation = d3.forceSimulation(nodes)
         .force("link", d3.forceLink(links).id(d => d.id).distance(d => lengthScale(d.length)))

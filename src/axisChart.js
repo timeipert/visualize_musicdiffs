@@ -76,7 +76,7 @@ export function initAxisChart(axSvg, axisLabelContainer, tooltip, linkData, allB
                 const details = d.beatDetails[keyIdx];
                 const info = beatInfo[allBeatKeys[keyIdx]];
                 if (!info || (d.beatCounts[keyIdx] || 0) === 0) return;
-                const tooltipContent = `<strong>${d.source} vs ${d.target}</strong><br>Takt: ${info.measure}, Beat: ${info.beat.toFixed(2)}<br>Differences: ${d.beatCounts[keyIdx]}<br><hr>${details ? details.join('<br>') : 'No Details'}`;
+                const tooltipContent = `<strong>${d.source.id} vs ${d.target.id}</strong><br>Measure: ${info.measure}, Beat: ${info.beat.toFixed(2)}<br>Differences: ${d.beatCounts[keyIdx]}<br><hr>${details ? details.join('<br>') : 'No Details'}`;
                 tooltip.style("opacity", 1).html(tooltipContent);
             })
             .on("mousemove", (event) => tooltip.style("left", (event.pageX + 15) + "px").style("top", (event.pageY - 28) + "px"))

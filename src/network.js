@@ -3,17 +3,28 @@ import * as d3 from 'd3';
 let simulation, link, node;
 
 export function initNetwork(svg, nodes, linkData, nodeColor) {
-    const width = svg.node().getBoundingClientRect().width;
-    const height = svg.node().getBoundingClientRect().height;
+    const { width, height } = svg.node().getBoundingClientRect();
 
     svg.selectAll("*").remove();
+
+    const networkG = svg.append("g");
+
+    const zoomed = (event) => {
+        networkG.attr("transform", event.transform);
+    };
+
+    const zoom = d3.zoom()
+        .scaleExtent([0.1, 4])
+        .on("zoom", zoomed);
+
+    svg.call(zoom);
 
     simulation = d3.forceSimulation(nodes)
         .force("link", d3.forceLink(linkData).id(d => d.id).distance(100).strength(1))
         .force("charge", d3.forceManyBody().strength(-600))
         .force("center", d3.forceCenter(width / 2, height / 2));
 
-    link = svg.append("g")
+    link = networkG.append("g")
         .attr("stroke", "#999")
         .attr("stroke-opacity", 0.6)
         .selectAll("line")
@@ -21,7 +32,7 @@ export function initNetwork(svg, nodes, linkData, nodeColor) {
         .join("line")
         .attr("stroke-width", 1.5);
 
-    node = svg.append("g")
+    node = networkG.append("g")
         .selectAll("g")
         .data(nodes)
         .join("g");
@@ -38,6 +49,29 @@ export function initNetwork(svg, nodes, linkData, nodeColor) {
         .attr("y", 4)
         .attr("font-size", "2em")
         .attr("class", "node-label");
+
+    function drag(simulation) {
+        function dragstarted(event, d) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+        function dragged(event, d) {
+            d.fx = event.x;
+            d.fy = event.y;
+        }
+        function dragended(event, d) {
+            if (!event.active) simulation.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+        }
+        return d3.drag()
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            .on("end", dragended);
+    }
+
+    node.call(drag(simulation));
 
     simulation.on("tick", () => {
         link
