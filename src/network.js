@@ -50,29 +50,6 @@ export function initNetwork(svg, nodes, linkData, nodeColor) {
         .attr("font-size", "2em")
         .attr("class", "node-label");
 
-    function drag(simulation) {
-        function dragstarted(event, d) {
-            if (!event.active) simulation.alphaTarget(0.3).restart();
-            d.fx = d.x;
-            d.fy = d.y;
-        }
-        function dragged(event, d) {
-            d.fx = event.x;
-            d.fy = event.y;
-        }
-        function dragended(event, d) {
-            if (!event.active) simulation.alphaTarget(0);
-            d.fx = null;
-            d.fy = null;
-        }
-        return d3.drag()
-            .on("start", dragstarted)
-            .on("drag", dragged)
-            .on("end", dragended);
-    }
-
-    node.call(drag(simulation));
-
     simulation.on("tick", () => {
         link
             .attr("x1", d => d.source.x)
