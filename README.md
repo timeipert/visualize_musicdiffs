@@ -37,7 +37,7 @@ transcription diverges from existing versions.
 
 You can create the diff-files from multiple MEI-Files with the following colab:
 [Google Colab Multiple MusicDiffs](https://colab.research.google.com/drive/1kpsOZ8GVcP6McCZPzv_YYDY9LeAWdqPU?usp=sharing)
-Then you can find our app [here](https://timeipert.github.io/visualize_musicdiffs/).
+Then you can find our app [here](https://timeipert.github.io/MusicDiffVision/).
 
 
 Presented at Third International Conference on Computational and Cognitive Musicology
